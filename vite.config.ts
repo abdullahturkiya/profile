@@ -5,7 +5,7 @@ import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
   return {
-    base: '/', // Absolute root path for custom domain abdullahinturkey.com and GitHub Pages
+    base: './', // Relative base path ensures scripts load on GitHub Pages subpaths (/profile/) and custom domain
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
