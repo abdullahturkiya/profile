@@ -7,6 +7,10 @@ export default defineConfig(() => {
   return {
     base: './', // Relative base path ensures scripts load on GitHub Pages subpaths (/profile/) and custom domain
     plugins: [react(), tailwindcss()],
+    build: {
+      target: 'es2020',
+      modulePreload: false,
+    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
