@@ -43,6 +43,7 @@ import {
 import { TourismService, HospitalityStandard, SocialPlatform, SiteSettings } from '../../types';
 import { useApp } from '../../context/AppContext';
 import { SiteLogo } from '../SiteLogo';
+import { ImageUploader } from '../ImageUploader';
 import { SUPABASE_SQL_SCHEMA } from '../../lib/supabase';
 
 // معالم تركيا الفاخرة المعتمدة للواجهة الرئيسية
@@ -1915,22 +1916,16 @@ export const AdminDashboard: React.FC = () => {
                   </div>
                 </div>
               ) : (
-                /* Custom Image URL (if logoType === 'image') */
-                <div>
-                  <label className="block text-xs font-semibold text-amber-200 mb-1.5">
-                    رابط صورة الشعار المخصصة (Image URL)
-                  </label>
-                  <input
-                    type="url"
-                    dir="ltr"
-                    placeholder="https://example.com/logo.png"
-                    value={brandingForm.logoImageUrl}
-                    onChange={(e) =>
-                      setBrandingForm({ ...brandingForm, logoImageUrl: e.target.value })
-                    }
-                    className="w-full rounded-xl border border-amber-400/25 bg-slate-950 px-4 py-3 text-xs text-slate-100 font-mono text-left focus:border-amber-400 focus:outline-none"
-                  />
-                </div>
+                /* Custom Image Logo Upload (if logoType === 'image') */
+                <ImageUploader
+                  label="صورة الشعار المخصصة (Logo Image)"
+                  value={brandingForm.logoImageUrl}
+                  onChange={(url) => setBrandingForm({ ...brandingForm, logoImageUrl: url })}
+                  aspectRatio="square"
+                  maxDimension={600}
+                  helperText="يمكنك رفع ملف صورة مخصص للشعار مباشرة من جهازك (PNG أو JPG أو SVG شفاف)."
+                  recommendedSize="512x512 بكسل بخلفية شفافة"
+                />
               )}
 
               {/* License & Location */}
@@ -2177,37 +2172,17 @@ export const AdminDashboard: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Custom Image URL */}
-                <div>
-                  <label className="block text-xs font-semibold text-amber-200 mb-1.5">
-                    أو أدخل رابط صورة مخصصة (Custom Image URL):
-                  </label>
-                  <div className="flex gap-2">
-                    <input
-                      type="url"
-                      dir="ltr"
-                      placeholder="https://example.com/turkey-luxury-photo.jpg"
-                      value={brandingForm.heroBackgroundImage}
-                      onChange={(e) =>
-                        setBrandingForm({ ...brandingForm, heroBackgroundImage: e.target.value })
-                      }
-                      className="flex-1 rounded-xl border border-amber-400/25 bg-slate-950 px-4 py-3 text-xs text-slate-100 font-mono text-left focus:border-amber-400 focus:outline-none"
-                    />
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setBrandingForm({
-                          ...brandingForm,
-                          heroBackgroundImage:
-                            'https://images.unsplash.com/photo-1527838832700-5059252407fa?auto=format&fit=crop&w=1920&q=85',
-                        })
-                      }
-                      className="px-4 py-2 rounded-xl border border-slate-700 bg-slate-800 text-xs text-slate-300 hover:text-white transition-all whitespace-nowrap"
-                    >
-                      استعادة الافتراضي
-                    </button>
-                  </div>
-                </div>
+                {/* Custom Image Upload for Hero Background */}
+                <ImageUploader
+                  label="رفع أو تغيير صورة خلفية الهيرو (Hero Background Image)"
+                  value={brandingForm.heroBackgroundImage}
+                  onChange={(url) => setBrandingForm({ ...brandingForm, heroBackgroundImage: url })}
+                  aspectRatio="wide"
+                  maxDimension={1920}
+                  placeholderUrl="https://images.unsplash.com/photo-1527838832700-5059252407fa?auto=format&fit=crop&w=1920&q=85"
+                  recommendedSize="1920x1080 بكسل عريضة فائقة الدقة"
+                  helperText="يمكنك التقاط صورة أو رفعها مباشرة من جهازك أو هاتفك لتغطي واجهة الهيرو بالكامل."
+                />
 
                 {/* Opacity Slider */}
                 <div className="rounded-2xl border border-slate-800 bg-slate-950 p-4 space-y-2">
@@ -2701,22 +2676,17 @@ export const AdminDashboard: React.FC = () => {
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-amber-200 mb-1">
-                    رابط الصورة عالية الدقة (Image URL) *
-                  </label>
-                  <input
-                    type="url"
-                    required
-                    dir="ltr"
-                    placeholder="https://..."
-                    value={serviceFormData.imageUrl}
-                    onChange={(e) =>
-                      setServiceFormData({ ...serviceFormData, imageUrl: e.target.value })
-                    }
-                    className="w-full rounded-xl border border-amber-400/25 bg-slate-950 px-3.5 py-2.5 text-xs text-slate-100 font-mono text-left"
-                  />
-                </div>
+                <ImageUploader
+                  label="صورة الخدمة / الجولة السياحية الفاخرة *"
+                  value={serviceFormData.imageUrl}
+                  onChange={(url) =>
+                    setServiceFormData({ ...serviceFormData, imageUrl: url })
+                  }
+                  aspectRatio="landscape"
+                  maxDimension={1200}
+                  recommendedSize="1200x800 بكسل"
+                  helperText="اختر صورة عالية الدقة من جهازك أو هاتفك (لليخت، أو السيارة، أو الفندق)، أو ضع رابطاً خارجياً."
+                />
 
                 <div>
                   <label className="block text-xs font-semibold text-amber-200 mb-1">
