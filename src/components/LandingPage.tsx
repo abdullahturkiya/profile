@@ -25,8 +25,8 @@ export const LandingPage: React.FC = () => {
   const { services, siteSettings, primaryWhatsAppNumber, navigateTo, theme, toggleTheme } = useApp();
   const [selectedServiceForReviews, setSelectedServiceForReviews] = useState<TourismService | null>(null);
   
-  // Show More / Show Less for services
-  const INITIAL_VISIBLE_COUNT = 4;
+  // Show More / Show Less for services (At least 6 services initially)
+  const INITIAL_VISIBLE_COUNT = 6;
   const [isExpanded, setIsExpanded] = useState(false);
   const visibleServices = isExpanded ? services : services.slice(0, INITIAL_VISIBLE_COUNT);
 

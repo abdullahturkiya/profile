@@ -146,6 +146,60 @@ export const INITIAL_SERVICES: TourismService[] = [
     ],
     createdAt: '2026-01-18T14:00:00Z',
   },
+  {
+    id: 'istanbul-helicopter',
+    title: 'جولة هليكوبتر VIP خاصة فوق إسطنبول والبوسفور',
+    englishTitle: 'Istanbul VIP Private Helicopter Sightseeing',
+    description: 'تحليق جوي حصري بطائرة هليكوبتر VIP فوق معالم إسطنبول التاريخية ومضيق البوسفور، الجزر الملكية، وقصور السلاطين مع استقبال وتوصيل بسيارة مايباخ خاصة.',
+    price: 1200,
+    currency: 'USD',
+    badge: 'تجربة جوية حصرية',
+    imageUrl: 'https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=1200&q=80',
+    destination: 'إسطنبول',
+    features: [
+      'طائرة هليكوبتر حديثة ومجهزة مع كابتن طيران خاص',
+      'تصوير فوتوغرافي وجوي 4K بجودة سينمائية طوال الرحلة',
+      'خدمة استقبال كونسيرج خاصة عند مهبط الطائرات',
+      'ضيافة ملكية خاصة مع إطلالات بانورامية لا تُنسى'
+    ],
+    createdAt: '2026-01-20T10:00:00Z',
+  },
+  {
+    id: 'bodrum-gulet',
+    title: 'رحلة يخت خشبي ملكي (غوليت) في بودروم وتشيشمي',
+    englishTitle: 'Bodrum & Cesme Luxury Private Gulet Cruise',
+    description: 'إبحار خاص لعدة أيام على متن يخت خشبي تركي تقليدي فاخر (Gulet) مجهز بأجنحة فندقية 5 نجوم، مع طاقم بحري متكامل وشيف خاص لاستكشاف أروع خلجان بحر إيجة.',
+    price: 1450,
+    currency: 'USD',
+    badge: 'فخامة بحر إيجة',
+    imageUrl: 'https://images.unsplash.com/photo-1569263979104-865ab7cd8d17?auto=format&fit=crop&w=1200&q=80',
+    destination: 'بودروم وبحر إيجة',
+    features: [
+      'يخت غوليت بطول 85 قدماً مع 4 أجنحة ملكية خاصة',
+      'طاقم خدمة بحري 4 أفراد وشيف تركي متخصص بالمأكولات البحرية',
+      'ألعاب ورياضات مائية (جت سكي، سي بوب، ومعدات غوص)',
+      'مرسى خاص وخدمات كونسيرج في مارينا ياليكافاك بودروم'
+    ],
+    createdAt: '2026-01-22T12:00:00Z',
+  },
+  {
+    id: 'maybach-chauffeur',
+    title: 'أسطول سيارات مرسيدس مايباخ VIP مع كونسيرج خاص',
+    englishTitle: 'Mercedes Maybach VIP Chauffeur & Personal Concierge',
+    description: 'تنقلات خاصة ومترفة على مدار الساعة بأسطول مرسيدس مايباخ وسبرينتر VIP الحديثة، مع سائق كونسيرج خاص يتحدث العربية وخبير بأفخم المطاعم ومراكز التسوق الحصرية.',
+    price: 350,
+    currency: 'USD',
+    badge: 'تنقلات ملوكية 24/7',
+    imageUrl: 'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=1200&q=80',
+    destination: 'إسطنبول وجميع المدن',
+    features: [
+      'سيارة مرسيدس مايباخ حديثة مجهزة بمقاعد مساج وشاشات ترفيه',
+      'سائق كونسيرج مرخص رسمياً ويجيد العربية بطلاقة',
+      'إنترنت سريع، ثلاجة مشروبات وضيافة تركية فاخرة',
+      'استقبال وتوديع Fast Track خاص من بوابة الطائرة'
+    ],
+    createdAt: '2026-01-25T15:00:00Z',
+  },
 ];
 
 export const INITIAL_REVIEWS: Review[] = [
