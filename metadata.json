@@ -1,0 +1,6 @@
+{
+  "name": "بوابة تركيا الفاخرة | دار السياحة VIP",
+  "description": "منصة السياحة الراقية وحجوزات النخبة في تركيا - برامج VIP، يخوت البوسفور، كابادوكيا وجولات الشمال التركي.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
