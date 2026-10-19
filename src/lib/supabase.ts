@@ -220,7 +220,7 @@ INSERT INTO public.admin_users (email, password, name, role)
 VALUES ('3lishops@gmail.com', 'admin123456', 'مدير النظام', 'superadmin')
 ON CONFLICT (email) DO NOTHING;
 
--- 7. تفعيل Row Level Security (RLS)
+-- 7. تفعيل Row Level Security (RLS) مع منح صلاحيات الإدخال والتعديل والحذف الشاملة
 ALTER TABLE public.services ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.reviews ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.social_links ENABLE ROW LEVEL SECURITY;
@@ -228,41 +228,36 @@ ALTER TABLE public.site_settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.hospitality_standards ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.admin_users ENABLE ROW LEVEL SECURITY;
 
--- 8. سياسات الأمان للقراءة العامة (Public Access)
+-- تنظيف السياسات القديمة
 DROP POLICY IF EXISTS "Public Read Services" ON public.services;
-CREATE POLICY "Public Read Services" ON public.services FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Admin Full Services" ON public.services;
+DROP POLICY IF EXISTS "Allow All Services" ON public.services;
 
 DROP POLICY IF EXISTS "Public Read Approved Reviews" ON public.reviews;
-CREATE POLICY "Public Read Approved Reviews" ON public.reviews FOR SELECT USING (status = 'approved');
-
 DROP POLICY IF EXISTS "Public Insert Pending Reviews" ON public.reviews;
-CREATE POLICY "Public Insert Pending Reviews" ON public.reviews FOR INSERT WITH CHECK (status = 'pending');
+DROP POLICY IF EXISTS "Admin Full Reviews" ON public.reviews;
+DROP POLICY IF EXISTS "Allow All Reviews" ON public.reviews;
 
 DROP POLICY IF EXISTS "Public Read Social Links" ON public.social_links;
-CREATE POLICY "Public Read Social Links" ON public.social_links FOR SELECT USING (is_active = true);
+DROP POLICY IF EXISTS "Admin Full Socials" ON public.social_links;
+DROP POLICY IF EXISTS "Allow All Social Links" ON public.social_links;
 
 DROP POLICY IF EXISTS "Public Read Settings" ON public.site_settings;
-CREATE POLICY "Public Read Settings" ON public.site_settings FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Admin Full Settings" ON public.site_settings;
+DROP POLICY IF EXISTS "Allow All Settings" ON public.site_settings;
 
 DROP POLICY IF EXISTS "Public Read Standards" ON public.hospitality_standards;
-CREATE POLICY "Public Read Standards" ON public.hospitality_standards FOR SELECT USING (true);
-
--- 9. سياسات الصلاحية الكاملة للعمليات
-DROP POLICY IF EXISTS "Admin Full Services" ON public.services;
-CREATE POLICY "Admin Full Services" ON public.services FOR ALL USING (true);
-
-DROP POLICY IF EXISTS "Admin Full Reviews" ON public.reviews;
-CREATE POLICY "Admin Full Reviews" ON public.reviews FOR ALL USING (true);
-
-DROP POLICY IF EXISTS "Admin Full Socials" ON public.social_links;
-CREATE POLICY "Admin Full Socials" ON public.social_links FOR ALL USING (true);
-
-DROP POLICY IF EXISTS "Admin Full Settings" ON public.site_settings;
-CREATE POLICY "Admin Full Settings" ON public.site_settings FOR ALL USING (true);
-
 DROP POLICY IF EXISTS "Admin Full Standards" ON public.hospitality_standards;
-CREATE POLICY "Admin Full Standards" ON public.hospitality_standards FOR ALL USING (true);
+DROP POLICY IF EXISTS "Allow All Standards" ON public.hospitality_standards;
 
 DROP POLICY IF EXISTS "Admin Users Access" ON public.admin_users;
-CREATE POLICY "Admin Users Access" ON public.admin_users FOR ALL USING (true);
+DROP POLICY IF EXISTS "Allow All Admin Users" ON public.admin_users;
+
+-- إنشاء سياسات السماح الشاملة للعمليات (USING + WITH CHECK)
+CREATE POLICY "Allow All Services" ON public.services FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow All Reviews" ON public.reviews FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow All Social Links" ON public.social_links FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow All Settings" ON public.site_settings FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow All Standards" ON public.hospitality_standards FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow All Admin Users" ON public.admin_users FOR ALL USING (true) WITH CHECK (true);
 `;
