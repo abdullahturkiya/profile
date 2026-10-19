@@ -130,21 +130,21 @@ export const LandingPage: React.FC = () => {
         </div>
       </header>
 
-      {/* 2. 3D Parallax Hero Section */}
-      <section id="hero" className="relative w-full max-w-5xl mx-auto px-4 sm:px-6 pt-12 pb-16 text-center">
-        {/* Turkey Scenic Background Backdrop with Smooth Bottom Gradient Fade and Transparency */}
+      {/* 2. 3D Parallax Hero Section - Full Width Edge-to-Edge Image Backdrop */}
+      <section id="hero" className="relative w-full overflow-hidden pt-12 pb-16 text-center">
+        {/* Turkey Scenic Background Backdrop - Full Width across any screen size */}
         <div 
-          className="pointer-events-none absolute inset-0 -z-10 overflow-hidden rounded-3xl"
+          className="pointer-events-none absolute inset-0 -z-10 w-full h-full overflow-hidden"
           style={{
             WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.88) 35%, rgba(0,0,0,0.45) 65%, rgba(0,0,0,0.1) 85%, rgba(0,0,0,0) 100%)',
             maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.88) 35%, rgba(0,0,0,0.45) 65%, rgba(0,0,0,0.1) 85%, rgba(0,0,0,0) 100%)',
           }}
         >
-          {/* Turkey Backdrop Image with adjustable transparency for background particle visibility */}
+          {/* Turkey Backdrop Image - Spans full width edge-to-edge */}
           <img
             src={siteSettings.heroBackgroundImage || "https://images.unsplash.com/photo-1527838832700-5059252407fa?auto=format&fit=crop&w=1920&q=85"}
             alt="أجواء وسياحة تركيا الفاخرة"
-            className="h-full w-full object-cover object-center transition-all duration-700"
+            className="h-full w-full object-cover object-center transition-all duration-700 min-w-full"
             style={{
               opacity: siteSettings.heroBackgroundOpacity ?? 0.38,
             }}
@@ -158,136 +158,139 @@ export const LandingPage: React.FC = () => {
           }`} />
           
           {/* Subtle gold ambient glow ring inside hero */}
-          <div className={`absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 h-80 w-80 rounded-full blur-[100px] pointer-events-none ${
+          <div className={`absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 h-96 w-[600px] max-w-full rounded-full blur-[120px] pointer-events-none ${
             theme === 'light' ? 'bg-amber-300/20 opacity-15' : 'bg-amber-400 opacity-25'
           }`} />
         </div>
 
-        {/* Gold Pill Badge */}
-        {siteSettings.heroBadgeVisible !== false && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
+        {/* Hero Content Wrapper with Margins & Width Constraint */}
+        <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6">
+          {/* Gold Pill Badge */}
+          {siteSettings.heroBadgeVisible !== false && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className={`inline-flex items-center gap-2 rounded-full border px-4 py-1.5 backdrop-blur-md mb-6 transition-all ${
+                theme === 'light'
+                  ? 'border-amber-400/50 bg-amber-50/90 text-amber-950 shadow-sm'
+                  : 'border-amber-400/40 bg-amber-400/10 shadow-[0_0_15px_rgba(212,175,55,0.2)]'
+              }`}
+            >
+              <span className="relative flex h-2 w-2">
+                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
+                  theme === 'light' ? 'bg-amber-600' : 'bg-amber-400'
+                }`}></span>
+                <span className={`relative inline-flex rounded-full h-2 w-2 ${
+                  theme === 'light' ? 'bg-amber-600' : 'bg-amber-400'
+                }`}></span>
+              </span>
+              <span className={`text-xs sm:text-sm font-bold tracking-wide ${
+                theme === 'light' ? 'text-amber-950' : 'text-amber-200'
+              }`}>
+                {siteSettings.heroBadgeText || siteSettings.sloganAr || "خدمات كونسيرج سياحي فئة خمس نجوم في تركيا"}
+              </span>
+              <Sparkles className={`h-3.5 w-3.5 ${theme === 'light' ? 'text-amber-600' : 'text-amber-300'}`} />
+            </motion.div>
+          )}
+
+          {/* Majestic Calligraphic Arabic Headline */}
+          <motion.h1
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.1 }}
+            className="text-3xl sm:text-5xl md:text-6xl font-extrabold leading-[1.25] tracking-tight text-gold-gradient max-w-4xl mx-auto mb-6 text-balance"
+          >
+            {siteSettings.heroHeadline || "بوابتك الاستثنائية لأرقى رحلات النخبة واليخوت الملكية في تركيا"}
+          </motion.h1>
+
+          {/* Subtitle */}
+          <motion.p
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className={`inline-flex items-center gap-2 rounded-full border px-4 py-1.5 backdrop-blur-md mb-6 transition-all ${
-              theme === 'light'
-                ? 'border-amber-400/50 bg-amber-50/90 text-amber-950 shadow-sm'
-                : 'border-amber-400/40 bg-amber-400/10 shadow-[0_0_15px_rgba(212,175,55,0.2)]'
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className={`text-sm sm:text-lg md:text-xl max-w-2xl mx-auto font-normal leading-relaxed mb-8 px-2 ${
+              theme === 'light' ? 'text-slate-700' : 'text-slate-300 font-light'
             }`}
           >
-            <span className="relative flex h-2 w-2">
-              <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
-                theme === 'light' ? 'bg-amber-600' : 'bg-amber-400'
-              }`}></span>
-              <span className={`relative inline-flex rounded-full h-2 w-2 ${
-                theme === 'light' ? 'bg-amber-600' : 'bg-amber-400'
-              }`}></span>
-            </span>
-            <span className={`text-xs sm:text-sm font-bold tracking-wide ${
-              theme === 'light' ? 'text-amber-950' : 'text-amber-200'
+            {siteSettings.heroSubtitle || "نصمم رحلاتك الخاصة في إسطنبول، كابادوكيا، طرابزون وأنطاليا بأعلى درجات الرفاهية والخصوصية التامة، مع أسطول سيارات مايباخ VIP ويخوت البوسفور الفارهة."}
+          </motion.p>
+
+          {/* Hero CTAs */}
+          {(siteSettings.heroPrimaryCtaVisible !== false || siteSettings.heroSecondaryCtaVisible !== false) && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto px-4"
+            >
+              {siteSettings.heroPrimaryCtaVisible !== false && (
+                <a
+                  href={siteSettings.heroPrimaryCtaCustomUrl || directWhatsAppUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`w-full sm:w-auto inline-flex items-center justify-center gap-3 rounded-xl px-8 py-4 font-bold text-sm sm:text-base hover:scale-[1.02] active:scale-[0.98] transition-all ${
+                    theme === 'light'
+                      ? 'bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-500 shadow-[0_4px_20px_rgba(16,185,129,0.35)]'
+                      : 'text-slate-950 shadow-[0_0_25px_rgba(212,175,55,0.35)] hover:shadow-[0_0_35px_rgba(212,175,55,0.6)]'
+                  }`}
+                  style={
+                    theme === 'light'
+                      ? undefined
+                      : {
+                          background: 'linear-gradient(135deg, #FFF0B3 0%, #D4AF37 45%, #AA771C 80%, #F5DE93 100%)',
+                        }
+                  }
+                >
+                  <MessageCircle className={`h-5 w-5 shrink-0 ${theme === 'light' ? 'fill-white text-white' : 'fill-slate-950 text-slate-950'}`} />
+                  <span className="whitespace-nowrap">
+                    {siteSettings.heroPrimaryCtaText || "احجز رحلتك الخاصة الآن عبر واتساب"}
+                  </span>
+                </a>
+              )}
+
+              {siteSettings.heroSecondaryCtaVisible !== false && (
+                <a
+                  href={siteSettings.heroSecondaryCtaLink || "#services"}
+                  className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border backdrop-blur-md transition-all text-sm sm:text-base px-7 py-4 font-bold ${
+                    theme === 'light'
+                      ? 'border-slate-300 bg-white text-slate-800 hover:bg-amber-50 hover:border-amber-400 hover:text-amber-900 shadow-sm'
+                      : 'border-amber-400/40 bg-slate-900/70 text-amber-100 hover:bg-amber-400/15 hover:border-amber-400'
+                  }`}
+                >
+                  <Compass className="h-4 w-4 text-amber-500 shrink-0" />
+                  <span className="whitespace-nowrap">
+                    {siteSettings.heroSecondaryCtaText || "استكشف باقات VIP المتاحة"}
+                  </span>
+                </a>
+              )}
+            </motion.div>
+          )}
+
+          {/* Trust credentials line */}
+          {siteSettings.heroTrustBarVisible !== false && (
+            <div className={`mt-10 flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs px-2 ${
+              theme === 'light' ? 'text-slate-600' : 'text-slate-400'
             }`}>
-              {siteSettings.heroBadgeText || siteSettings.sloganAr || "خدمات كونسيرج سياحي فئة خمس نجوم في تركيا"}
-            </span>
-            <Sparkles className={`h-3.5 w-3.5 ${theme === 'light' ? 'text-amber-600' : 'text-amber-300'}`} />
-          </motion.div>
-        )}
-
-        {/* Majestic Calligraphic Arabic Headline */}
-        <motion.h1
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.1 }}
-          className="text-3xl sm:text-5xl md:text-6xl font-extrabold leading-[1.25] tracking-tight text-gold-gradient max-w-4xl mx-auto mb-6 text-balance"
-        >
-          {siteSettings.heroHeadline || "بوابتك الاستثنائية لأرقى رحلات النخبة واليخوت الملكية في تركيا"}
-        </motion.h1>
-
-        {/* Subtitle */}
-        <motion.p
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className={`text-sm sm:text-lg md:text-xl max-w-2xl mx-auto font-normal leading-relaxed mb-8 px-2 ${
-            theme === 'light' ? 'text-slate-700' : 'text-slate-300 font-light'
-          }`}
-        >
-          {siteSettings.heroSubtitle || "نصمم رحلاتك الخاصة في إسطنبول، كابادوكيا، طرابزون وأنطاليا بأعلى درجات الرفاهية والخصوصية التامة، مع أسطول سيارات مايباخ VIP ويخوت البوسفور الفارهة."}
-        </motion.p>
-
-        {/* Hero CTAs */}
-        {(siteSettings.heroPrimaryCtaVisible !== false || siteSettings.heroSecondaryCtaVisible !== false) && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto px-4"
-          >
-            {siteSettings.heroPrimaryCtaVisible !== false && (
-              <a
-                href={siteSettings.heroPrimaryCtaCustomUrl || directWhatsAppUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`w-full sm:w-auto inline-flex items-center justify-center gap-3 rounded-xl px-8 py-4 font-bold text-sm sm:text-base hover:scale-[1.02] active:scale-[0.98] transition-all ${
-                  theme === 'light'
-                    ? 'bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-500 shadow-[0_4px_20px_rgba(16,185,129,0.35)]'
-                    : 'text-slate-950 shadow-[0_0_25px_rgba(212,175,55,0.35)] hover:shadow-[0_0_35px_rgba(212,175,55,0.6)]'
-                }`}
-                style={
-                  theme === 'light'
-                    ? undefined
-                    : {
-                        background: 'linear-gradient(135deg, #FFF0B3 0%, #D4AF37 45%, #AA771C 80%, #F5DE93 100%)',
-                      }
-                }
-              >
-                <MessageCircle className={`h-5 w-5 shrink-0 ${theme === 'light' ? 'fill-white text-white' : 'fill-slate-950 text-slate-950'}`} />
-                <span className="whitespace-nowrap">
-                  {siteSettings.heroPrimaryCtaText || "احجز رحلتك الخاصة الآن عبر واتساب"}
+              <div className="flex items-center gap-1.5">
+                <ShieldCheck className="h-4 w-4 text-amber-500 shrink-0" />
+                <span>{siteSettings.heroTrustText1 || siteSettings.tursabLicense || "TÜRSAB - 14920 (فئة أ)"}</span>
+              </div>
+              <span className="text-amber-500/40">•</span>
+              <div className="flex items-center gap-1.5">
+                <MapPin className="h-4 w-4 text-amber-500 shrink-0" />
+                <span>{siteSettings.heroTrustText2 || siteSettings.headquarters || "Zorlu Center, Beşiktaş, Istanbul"}</span>
+              </div>
+              <span className="text-amber-500/40">•</span>
+              <div className="flex items-center gap-1.5">
+                <Phone className="h-4 w-4 text-emerald-500 shrink-0" />
+                <span className={theme === 'light' ? 'text-emerald-700 font-medium' : 'text-emerald-300'}>
+                  {siteSettings.heroTrustText3 || "كونسيرج متاح 24/7"}
                 </span>
-              </a>
-            )}
-
-            {siteSettings.heroSecondaryCtaVisible !== false && (
-              <a
-                href={siteSettings.heroSecondaryCtaLink || "#services"}
-                className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border backdrop-blur-md transition-all text-sm sm:text-base px-7 py-4 font-bold ${
-                  theme === 'light'
-                    ? 'border-slate-300 bg-white text-slate-800 hover:bg-amber-50 hover:border-amber-400 hover:text-amber-900 shadow-sm'
-                    : 'border-amber-400/40 bg-slate-900/70 text-amber-100 hover:bg-amber-400/15 hover:border-amber-400'
-                }`}
-              >
-                <Compass className="h-4 w-4 text-amber-500 shrink-0" />
-                <span className="whitespace-nowrap">
-                  {siteSettings.heroSecondaryCtaText || "استكشف باقات VIP المتاحة"}
-                </span>
-              </a>
-            )}
-          </motion.div>
-        )}
-
-        {/* Trust credentials line */}
-        {siteSettings.heroTrustBarVisible !== false && (
-          <div className={`mt-10 flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs px-2 ${
-            theme === 'light' ? 'text-slate-600' : 'text-slate-400'
-          }`}>
-            <div className="flex items-center gap-1.5">
-              <ShieldCheck className="h-4 w-4 text-amber-500 shrink-0" />
-              <span>{siteSettings.heroTrustText1 || siteSettings.tursabLicense || "TÜRSAB - 14920 (فئة أ)"}</span>
+              </div>
             </div>
-            <span className="text-amber-500/40">•</span>
-            <div className="flex items-center gap-1.5">
-              <MapPin className="h-4 w-4 text-amber-500 shrink-0" />
-              <span>{siteSettings.heroTrustText2 || siteSettings.headquarters || "Zorlu Center, Beşiktaş, Istanbul"}</span>
-            </div>
-            <span className="text-amber-500/40">•</span>
-            <div className="flex items-center gap-1.5">
-              <Phone className="h-4 w-4 text-emerald-500 shrink-0" />
-              <span className={theme === 'light' ? 'text-emerald-700 font-medium' : 'text-emerald-300'}>
-                {siteSettings.heroTrustText3 || "كونسيرج متاح 24/7"}
-              </span>
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </section>
 
       {/* 3. 3D Services & Packages Grid with Show More (عرض المزيد) */}
