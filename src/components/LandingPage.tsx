@@ -10,10 +10,12 @@ import {
   ChevronDown,
   ChevronUp,
   Sun,
-  Moon
+  Moon,
+  RotateCw
 } from 'lucide-react';
 import { ParallaxBackground } from './ParallaxBackground';
 import { ServiceCard3D } from './ServiceCard3D';
+import { RoyalServiceSkeleton } from './RoyalServiceSkeleton';
 import { ReviewModal } from './ReviewModal';
 import { SiteLogo } from './SiteLogo';
 import { HospitalityStandardsSection } from './HospitalityStandardsSection';
@@ -22,8 +24,26 @@ import { TourismService } from '../types';
 import { useApp } from '../context/AppContext';
 
 export const LandingPage: React.FC = () => {
-  const { services, siteSettings, primaryWhatsAppNumber, navigateTo, theme, toggleTheme } = useApp();
+  const {
+    services,
+    siteSettings,
+    primaryWhatsAppNumber,
+    navigateTo,
+    theme,
+    toggleTheme,
+    refreshDatabaseData,
+  } = useApp();
   const [selectedServiceForReviews, setSelectedServiceForReviews] = useState<TourismService | null>(null);
+  const [isManualRefreshing, setIsManualRefreshing] = useState(false);
+
+  const handleManualRefresh = async () => {
+    setIsManualRefreshing(true);
+    try {
+      await refreshDatabaseData();
+    } finally {
+      setIsManualRefreshing(false);
+    }
+  };
   
   // Show More / Show Less for services (At least 6 services initially)
   const INITIAL_VISIBLE_COUNT = 6;
@@ -106,6 +126,22 @@ export const LandingPage: React.FC = () => {
                   </motion.div>
                 )}
               </AnimatePresence>
+            </button>
+
+            {/* Direct Instant Database Live Refresh Button */}
+            <button
+              type="button"
+              onClick={handleManualRefresh}
+              disabled={isManualRefreshing}
+              title="تحديث واسترجاع البيانات مباشرة من قاعدة البيانات"
+              aria-label="مزامنة وتحديث البيانات"
+              className={`relative flex items-center justify-center h-8 w-8 sm:h-11 sm:w-11 rounded-lg sm:rounded-xl border transition-all duration-300 shrink-0 ${
+                theme === 'light'
+                  ? 'border-amber-500/30 bg-white/95 text-amber-900 hover:bg-amber-50 hover:border-amber-500 shadow-[0_2px_10px_rgba(212,175,55,0.15)]'
+                  : 'border-amber-400/30 bg-slate-900/80 text-amber-300 hover:bg-amber-400/15 hover:border-amber-400 shadow-[0_0_12px_rgba(212,175,55,0.15)]'
+              }`}
+            >
+              <RotateCw className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${isManualRefreshing ? 'animate-spin text-amber-400' : 'text-amber-400/90'}`} />
             </button>
 
             {/* Direct WhatsApp Concierge CTA - Ultra Responsive & Ultra Compact on Mobile */}
@@ -311,16 +347,20 @@ export const LandingPage: React.FC = () => {
 
         {/* 3D Cards Responsive Grid: 1 col on mobile, 2 on tablet, 3 on desktop, 4 on xl */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          <AnimatePresence mode="popLayout">
-            {visibleServices.map((service, index) => (
-              <ServiceCard3D
-                key={service.id}
-                service={service}
-                index={index}
-                onOpenReviews={(srv) => setSelectedServiceForReviews(srv)}
-              />
-            ))}
-          </AnimatePresence>
+          {visibleServices.length === 0 ? (
+            <RoyalServiceSkeleton theme={theme} count={6} />
+          ) : (
+            <AnimatePresence mode="popLayout">
+              {visibleServices.map((service, index) => (
+                <ServiceCard3D
+                  key={service.id}
+                  service={service}
+                  index={index}
+                  onOpenReviews={(srv) => setSelectedServiceForReviews(srv)}
+                />
+              ))}
+            </AnimatePresence>
+          )}
         </div>
 
         {/* Show More / Show Less Button (إذا كان هناك الكثير من الخدمات) */}

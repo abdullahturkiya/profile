@@ -35,7 +35,8 @@ import {
   Lock,
   Key,
   CheckCircle2,
-  Globe
+  Globe,
+  RotateCw
 } from 'lucide-react';
 import { TourismService, HospitalityStandard, SocialPlatform, SiteSettings } from '../../types';
 import { useApp } from '../../context/AppContext';
@@ -110,7 +111,19 @@ export const AdminDashboard: React.FC = () => {
     navigateTo,
     adminUser,
     isSupabaseConnected,
+    refreshDatabaseData,
   } = useApp();
+
+  const [isAdminRefreshing, setIsAdminRefreshing] = useState(false);
+
+  const handleAdminSync = async () => {
+    setIsAdminRefreshing(true);
+    try {
+      await refreshDatabaseData();
+    } finally {
+      setIsAdminRefreshing(false);
+    }
+  };
 
   // Active Tab: services | reviews | standards | socials | branding | hero
   const [activeTab, setActiveTab] = useState<'services' | 'reviews' | 'standards' | 'socials' | 'branding' | 'hero'>('services');
@@ -452,6 +465,17 @@ export const AdminDashboard: React.FC = () => {
 
           {/* Quick Actions */}
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* Direct Instant Database Sync */}
+            <button
+              onClick={handleAdminSync}
+              disabled={isAdminRefreshing}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-emerald-500/10 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/20 transition-all"
+              title="تحديث ومزامنة البيانات مباشرة من Supabase"
+            >
+              <RotateCw className={`h-3.5 w-3.5 text-emerald-400 ${isAdminRefreshing ? 'animate-spin' : ''}`} />
+              <span className="hidden sm:inline">مزامنة البيانات</span>
+            </button>
+
             {/* View Site */}
             <button
               onClick={() => navigateTo('landing')}

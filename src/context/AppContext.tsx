@@ -28,6 +28,12 @@ interface AppContextType {
   globalLoadingText: string;
   startGlobalLoading: (text?: string) => void;
   stopGlobalLoading: () => void;
+
+  // Real Database Direct Sync & Luxury Loading
+  isInitialDataLoading: boolean;
+  loadingStageText: string;
+  loadingProgressPercent: number;
+  refreshDatabaseData: () => Promise<void>;
   
   // Site Settings & Logo
   siteSettings: SiteSettings;
@@ -203,11 +209,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [services, setServices] = useState<TourismService[]>(() => {
     try {
       const cached = localStorage.getItem('ELITE_TURKEY_SERVICES');
-      if (cached) return JSON.parse(cached);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed)) return parsed;
+      }
     } catch (e) {
       console.warn('Failed to parse cached services:', e);
     }
-    return INITIAL_SERVICES;
+    return [];
   });
 
   // Reviews
@@ -245,7 +254,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [isSupabaseConnected, setIsSupabaseConnected] = useState<boolean>(true);
 
-  // Sync state to localStorage
+  // Real Database Direct Sync & Royal Splash Loading States
+  const [isInitialDataLoading, setIsInitialDataLoading] = useState<boolean>(true);
+  const [loadingStageText, setLoadingStageText] = useState<string>('جاري الاتصال الآمن بقاعدة البيانات الملكية...');
+  const [loadingProgressPercent, setLoadingProgressPercent] = useState<number>(15);
+
+  // Sync state to localStorage (offline cache backup)
   useEffect(() => {
     localStorage.setItem('ELITE_TURKEY_SETTINGS', JSON.stringify(siteSettings));
   }, [siteSettings]);
@@ -270,242 +284,217 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem('ELITE_TURKEY_ADMIN', JSON.stringify(adminUser));
   }, [adminUser]);
 
-  // Initial Supabase Sync & Auto-Seed
+  // Core function to fetch fresh data directly from Supabase
+  const fetchFreshDatabaseData = async (isManual = false) => {
+    const client = getSupabaseClient();
+    if (!client) {
+      setIsSupabaseConnected(false);
+      setIsInitialDataLoading(false);
+      return;
+    }
+
+    try {
+      setLoadingStageText('جاري الاتصال الآمن بقاعدة البيانات الملكية...');
+      setLoadingProgressPercent(20);
+
+      // 1. Fetch site_settings directly from Supabase
+      setLoadingStageText('مزامنة بيانات الهوية وإعدادات الواجهة...');
+      setLoadingProgressPercent(35);
+      const { data: setData, error: setErr } = await client
+        .from('site_settings')
+        .select('*')
+        .eq('id', 'primary')
+        .maybeSingle();
+
+      if (!setErr && setData) {
+        const dbData = setData as Record<string, unknown>;
+        const mappedSettings: SiteSettings = {
+          nameAr: dbData.name_ar ? String(dbData.name_ar) : INITIAL_SITE_SETTINGS.nameAr,
+          nameEn: dbData.name_en ? String(dbData.name_en) : INITIAL_SITE_SETTINGS.nameEn,
+          sloganAr: dbData.slogan_ar ? String(dbData.slogan_ar) : INITIAL_SITE_SETTINGS.sloganAr,
+          logoType: (dbData.logo_type as SiteSettings['logoType']) || 'icon',
+          logoIcon: (dbData.logo_icon as SiteSettings['logoIcon']) || 'crown',
+          logoImageUrl: dbData.logo_image_url ? String(dbData.logo_image_url) : '',
+          tursabLicense: dbData.tursab_license ? String(dbData.tursab_license) : INITIAL_SITE_SETTINGS.tursabLicense,
+          headquarters: dbData.headquarters ? String(dbData.headquarters) : INITIAL_SITE_SETTINGS.headquarters,
+
+          heroBackgroundImage: dbData.hero_background_image ? String(dbData.hero_background_image) : INITIAL_SITE_SETTINGS.heroBackgroundImage,
+          heroBackgroundOpacity: typeof dbData.hero_background_opacity === 'number' ? dbData.hero_background_opacity : INITIAL_SITE_SETTINGS.heroBackgroundOpacity,
+          heroBadgeText: dbData.hero_badge_text ? String(dbData.hero_badge_text) : INITIAL_SITE_SETTINGS.heroBadgeText,
+          heroBadgeVisible: dbData.hero_badge_visible !== null && dbData.hero_badge_visible !== undefined ? Boolean(dbData.hero_badge_visible) : true,
+          heroHeadline: dbData.hero_headline ? String(dbData.hero_headline) : INITIAL_SITE_SETTINGS.heroHeadline,
+          heroSubtitle: dbData.hero_subtitle ? String(dbData.hero_subtitle) : INITIAL_SITE_SETTINGS.heroSubtitle,
+          heroPrimaryCtaText: dbData.hero_primary_cta_text ? String(dbData.hero_primary_cta_text) : INITIAL_SITE_SETTINGS.heroPrimaryCtaText,
+          heroPrimaryCtaCustomUrl: dbData.hero_primary_cta_custom_url ? String(dbData.hero_primary_cta_custom_url) : '',
+          heroPrimaryCtaVisible: dbData.hero_primary_cta_visible !== null && dbData.hero_primary_cta_visible !== undefined ? Boolean(dbData.hero_primary_cta_visible) : true,
+          heroSecondaryCtaText: dbData.hero_secondary_cta_text ? String(dbData.hero_secondary_cta_text) : INITIAL_SITE_SETTINGS.heroSecondaryCtaText,
+          heroSecondaryCtaLink: dbData.hero_secondary_cta_link ? String(dbData.hero_secondary_cta_link) : INITIAL_SITE_SETTINGS.heroSecondaryCtaLink,
+          heroSecondaryCtaVisible: dbData.hero_secondary_cta_visible !== null && dbData.hero_secondary_cta_visible !== undefined ? Boolean(dbData.hero_secondary_cta_visible) : true,
+          heroTrustText1: dbData.hero_trust_text_1 ? String(dbData.hero_trust_text_1) : INITIAL_SITE_SETTINGS.heroTrustText1,
+          heroTrustText2: dbData.hero_trust_text_2 ? String(dbData.hero_trust_text_2) : INITIAL_SITE_SETTINGS.heroTrustText2,
+          heroTrustText3: dbData.hero_trust_text_3 ? String(dbData.hero_trust_text_3) : INITIAL_SITE_SETTINGS.heroTrustText3,
+          heroTrustBarVisible: dbData.hero_trust_bar_visible !== null && dbData.hero_trust_bar_visible !== undefined ? Boolean(dbData.hero_trust_bar_visible) : true,
+
+          contactBadgeText: dbData.contact_badge_text ? String(dbData.contact_badge_text) : INITIAL_SITE_SETTINGS.contactBadgeText,
+          contactBadgeVisible: dbData.contact_badge_visible !== null && dbData.contact_badge_visible !== undefined ? Boolean(dbData.contact_badge_visible) : true,
+          contactTitle: dbData.contact_title ? String(dbData.contact_title) : INITIAL_SITE_SETTINGS.contactTitle,
+          contactSubtitle: dbData.contact_subtitle ? String(dbData.contact_subtitle) : INITIAL_SITE_SETTINGS.contactSubtitle,
+          contactWhatsAppVisible: dbData.contact_whats_app_visible !== null && dbData.contact_whats_app_visible !== undefined ? Boolean(dbData.contact_whats_app_visible) : true,
+          contactWhatsAppTitle: dbData.contact_whats_app_title ? String(dbData.contact_whats_app_title) : INITIAL_SITE_SETTINGS.contactWhatsAppTitle,
+          contactWhatsAppBadge: dbData.contact_whats_app_badge ? String(dbData.contact_whats_app_badge) : INITIAL_SITE_SETTINGS.contactWhatsAppBadge,
+          contactWhatsAppDescription: dbData.contact_whats_app_description ? String(dbData.contact_whats_app_description) : INITIAL_SITE_SETTINGS.contactWhatsAppDescription,
+          contactWhatsAppButtonText: dbData.contact_whats_app_button_text ? String(dbData.contact_whats_app_button_text) : INITIAL_SITE_SETTINGS.contactWhatsAppButtonText,
+          contactWhatsAppNumber: dbData.contact_whats_app_number ? String(dbData.contact_whats_app_number) : INITIAL_SITE_SETTINGS.contactWhatsAppNumber,
+          contactWhatsAppDefaultMessage: dbData.contact_whats_app_default_message ? String(dbData.contact_whats_app_default_message) : INITIAL_SITE_SETTINGS.contactWhatsAppDefaultMessage,
+          contactTrustBarVisible: dbData.contact_trust_bar_visible !== null && dbData.contact_trust_bar_visible !== undefined ? Boolean(dbData.contact_trust_bar_visible) : true,
+          contactLicenseText: dbData.contact_license_text ? String(dbData.contact_license_text) : INITIAL_SITE_SETTINGS.contactLicenseText,
+          contactSupportHours: dbData.contact_support_hours ? String(dbData.contact_support_hours) : INITIAL_SITE_SETTINGS.contactSupportHours,
+          contactHeadquartersText: dbData.contact_headquarters_text ? String(dbData.contact_headquarters_text) : INITIAL_SITE_SETTINGS.contactHeadquartersText,
+        };
+        setSiteSettings(mappedSettings);
+        localStorage.setItem('ELITE_TURKEY_SETTINGS', JSON.stringify(mappedSettings));
+      }
+
+      // 2. Fetch live services directly from Supabase
+      setLoadingStageText('استرجاع باقات الخدمات والجولات السياحية الحية...');
+      setLoadingProgressPercent(58);
+      const { data: srvData, error: srvErr } = await client
+        .from('services')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (!srvErr && srvData) {
+        setIsSupabaseConnected(true);
+        const mappedServices: TourismService[] = srvData.map((s: Record<string, unknown>) => ({
+          id: String(s.id),
+          title: String(s.title || ''),
+          englishTitle: String(s.english_title || ''),
+          description: String(s.description || ''),
+          price: Number(s.price || 0),
+          currency: String(s.currency || 'USD'),
+          badge: String(s.badge || 'VIP'),
+          imageUrl: String(s.image_url || ''),
+          destination: String(s.destination || 'إسطنبول'),
+          features: Array.isArray(s.features) ? s.features as string[] : [],
+          createdAt: String(s.created_at || ''),
+        }));
+        setServices(mappedServices);
+        localStorage.setItem('ELITE_TURKEY_SERVICES', JSON.stringify(mappedServices));
+      }
+
+      // 3. Fetch live reviews directly from Supabase
+      setLoadingStageText('مزامنة تقييمات الضيوف والخدمات المعتمدة...');
+      setLoadingProgressPercent(74);
+      const { data: revData, error: revErr } = await client.from('reviews').select('*');
+      if (!revErr && revData && revData.length > 0) {
+        const mappedReviews: Review[] = revData.map((r: Record<string, unknown>) => ({
+          id: String(r.id),
+          serviceId: String(r.service_id),
+          authorName: String(r.author_name),
+          location: String(r.location || ''),
+          rating: Number(r.rating),
+          comment: String(r.comment),
+          status: r.status as 'pending' | 'approved' | 'rejected',
+          createdAt: String(r.created_at || new Date().toISOString()),
+        }));
+        setReviews(mappedReviews);
+        localStorage.setItem('ELITE_TURKEY_REVIEWS', JSON.stringify(mappedReviews));
+      }
+
+      // 4. Fetch social links directly from Supabase
+      setLoadingStageText('مزامنة قنوات التواصل ومعايير الكونسيرج...');
+      setLoadingProgressPercent(86);
+      const { data: socData, error: socErr } = await client.from('social_links').select('*');
+      if (!socErr && socData && socData.length > 0) {
+        const mappedSocials: SocialLink[] = socData.map((l: Record<string, unknown>) => ({
+          id: String(l.id),
+          platform: l.platform as SocialLink['platform'],
+          label: String(l.label || ''),
+          url: String(l.url || ''),
+          description: l.description ? String(l.description) : undefined,
+          badge: l.badge ? String(l.badge) : undefined,
+          actionText: l.action_text ? String(l.action_text) : undefined,
+          isActive: Boolean(l.is_active),
+        }));
+        setSocialLinks(mappedSocials);
+        localStorage.setItem('ELITE_TURKEY_SOCIALS', JSON.stringify(mappedSocials));
+      }
+
+      // 5. Fetch hospitality standards from Supabase
+      const { data: stdData, error: stdErr } = await client
+        .from('hospitality_standards')
+        .select('*')
+        .order('sort_order', { ascending: true });
+      if (!stdErr && stdData && stdData.length > 0) {
+        const mappedStandards: HospitalityStandard[] = stdData.map((d: Record<string, unknown>) => ({
+          id: String(d.id),
+          title: String(d.title || ''),
+          description: String(d.description || ''),
+          icon: (d.icon as HospitalityStandard['icon']) || 'award',
+        }));
+        setStandards(mappedStandards);
+        localStorage.setItem('ELITE_TURKEY_STANDARDS', JSON.stringify(mappedStandards));
+      }
+
+      // 6. Verify admin user authentication status if logged in
+      if (adminUser.isAuthenticated && adminUser.email) {
+        const { data: adminCheck, error: adminErr } = await client
+          .from('admin_users')
+          .select('email')
+          .eq('email', adminUser.email.trim().toLowerCase())
+          .maybeSingle();
+
+        if (!adminErr && !adminCheck) {
+          setAdminUser({ email: '', isAuthenticated: false, isDemo: false });
+          localStorage.removeItem('ELITE_TURKEY_ADMIN');
+        }
+      }
+
+      // 7. Finish loading smoothly
+      setLoadingStageText('اكتمل التجهيز الملكي بنجاح');
+      setLoadingProgressPercent(100);
+      setIsSupabaseConnected(true);
+
+      // Brief gentle pause so 100% is registered gracefully
+      await new Promise((r) => setTimeout(r, 260));
+      setIsInitialDataLoading(false);
+
+      if (isManual) {
+        showToast('تم استرجاع أحدث البيانات مباشرة من قاعدة البيانات بنجاح', 'success', 3000);
+      }
+    } catch (err) {
+      console.warn('Direct Supabase fetch warning:', err);
+      setIsInitialDataLoading(false);
+    }
+  };
+
+  const refreshDatabaseData = async () => {
+    startGlobalLoading('جاري تحديث واسترجاع أحدث البيانات مباشرة من قاعدة البيانات...');
+    try {
+      await fetchFreshDatabaseData(true);
+    } finally {
+      stopGlobalLoading();
+    }
+  };
+
+  // Initial Supabase Sync with safety timeout
   useEffect(() => {
-    const syncSupabase = async () => {
-      const client = getSupabaseClient();
-      if (!client) {
-        setIsSupabaseConnected(false);
-        return;
-      }
-
-      try {
-        // 1. Check services (ordered by created_at descending)
-        const { data: srvData, error: srvErr } = await client
-          .from('services')
-          .select('*')
-          .order('created_at', { ascending: false });
-        if (!srvErr) {
-          setIsSupabaseConnected(true);
-          if (srvData && srvData.length > 0) {
-            // Map db snake_case to camelCase
-            const mappedServices: TourismService[] = srvData.map((s: Record<string, unknown>) => ({
-              id: String(s.id),
-              title: String(s.title || ''),
-              englishTitle: String(s.english_title || ''),
-              description: String(s.description || ''),
-              price: Number(s.price || 0),
-              currency: String(s.currency || 'USD'),
-              badge: String(s.badge || 'VIP'),
-              imageUrl: String(s.image_url || ''),
-              destination: String(s.destination || 'إسطنبول'),
-              features: Array.isArray(s.features) ? s.features as string[] : [],
-              createdAt: String(s.created_at || ''),
-            }));
-            setServices(mappedServices);
-          } else {
-            // Seed initial services to Supabase so it has full data
-            for (const s of INITIAL_SERVICES) {
-              await client.from('services').insert({
-                id: s.id,
-                title: s.title,
-                english_title: s.englishTitle,
-                description: s.description,
-                price: s.price,
-                currency: s.currency,
-                badge: s.badge,
-                image_url: s.imageUrl,
-                destination: s.destination,
-                features: s.features,
-              });
-            }
-          }
+    // Safety timer: maximum 7 seconds wait to prevent hanging if network is totally down
+    const safetyTimer = setTimeout(() => {
+      setIsInitialDataLoading((prev) => {
+        if (prev) {
+          console.warn('Initial data load timeout reached; displaying available state.');
+          return false;
         }
+        return false;
+      });
+    }, 7000);
 
-        // 2. Check reviews
-        const { data: revData, error: revErr } = await client.from('reviews').select('*');
-        if (!revErr && revData && revData.length > 0) {
-          const mappedReviews: Review[] = revData.map((r: Record<string, unknown>) => ({
-            id: String(r.id),
-            serviceId: String(r.service_id),
-            authorName: String(r.author_name),
-            location: String(r.location || ''),
-            rating: Number(r.rating),
-            comment: String(r.comment),
-            status: r.status as 'pending' | 'approved' | 'rejected',
-            createdAt: String(r.created_at || new Date().toISOString()),
-          }));
-          setReviews(mappedReviews);
-        } else if (!revErr && (!revData || revData.length === 0)) {
-          // Seed reviews
-          for (const r of INITIAL_REVIEWS) {
-            await client.from('reviews').insert({
-              id: r.id,
-              service_id: r.serviceId,
-              author_name: r.authorName,
-              location: r.location,
-              rating: r.rating,
-              comment: r.comment,
-              status: r.status,
-            });
-          }
-        }
+    fetchFreshDatabaseData(false).finally(() => {
+      clearTimeout(safetyTimer);
+    });
 
-        // 3. Check social links
-        const { data: socData, error: socErr } = await client.from('social_links').select('*');
-        if (!socErr && socData && socData.length > 0) {
-          const mappedSocials: SocialLink[] = socData.map((l: Record<string, unknown>) => ({
-            id: String(l.id),
-            platform: l.platform as SocialLink['platform'],
-            label: String(l.label || ''),
-            url: String(l.url || ''),
-            description: l.description ? String(l.description) : undefined,
-            badge: l.badge ? String(l.badge) : undefined,
-            actionText: l.action_text ? String(l.action_text) : undefined,
-            isActive: Boolean(l.is_active),
-          }));
-          setSocialLinks(mappedSocials);
-        } else if (!socErr && (!socData || socData.length === 0)) {
-          for (const l of INITIAL_SOCIAL_LINKS) {
-            await client.from('social_links').insert({
-              id: l.id,
-              platform: l.platform,
-              label: l.label,
-              url: l.url,
-              is_active: l.isActive,
-            });
-          }
-        }
-        // 4. Check & verify cached admin user status against Supabase admin_users table
-        if (adminUser.isAuthenticated && adminUser.email) {
-          const { data: adminCheck, error: adminErr } = await client
-            .from('admin_users')
-            .select('email')
-            .eq('email', adminUser.email.trim().toLowerCase())
-            .maybeSingle();
-
-          if (!adminErr && !adminCheck) {
-            // Admin email was deleted or changed in Supabase database!
-            // Invalidate local cached admin session so user is forced to re-login with active Supabase credentials.
-            console.info('Admin user email no longer exists in Supabase database. Logging out cached session.');
-            setAdminUser({ email: '', isAuthenticated: false, isDemo: false });
-            localStorage.removeItem('ELITE_TURKEY_ADMIN');
-          }
-        }
-
-        // 5. Check & sync site settings from Supabase database
-        const { data: setData, error: setErr } = await client.from('site_settings').select('*').eq('id', 'primary').maybeSingle();
-        
-        let currentLocalSettings = INITIAL_SITE_SETTINGS;
-        try {
-          const cached = localStorage.getItem('ELITE_TURKEY_SETTINGS');
-          if (cached) currentLocalSettings = JSON.parse(cached);
-        } catch (e) {
-          console.warn('Failed to parse cached settings:', e);
-        }
-
-        if (!setErr && setData) {
-          const dbData = setData as Record<string, unknown>;
-          const mappedSettings: SiteSettings = {
-            nameAr: dbData.name_ar ? String(dbData.name_ar) : currentLocalSettings.nameAr,
-            nameEn: dbData.name_en ? String(dbData.name_en) : currentLocalSettings.nameEn,
-            sloganAr: dbData.slogan_ar ? String(dbData.slogan_ar) : currentLocalSettings.sloganAr,
-            logoType: (dbData.logo_type as SiteSettings['logoType']) || currentLocalSettings.logoType,
-            logoIcon: (dbData.logo_icon as SiteSettings['logoIcon']) || currentLocalSettings.logoIcon,
-            logoImageUrl: dbData.logo_image_url !== undefined && dbData.logo_image_url !== null ? String(dbData.logo_image_url) : currentLocalSettings.logoImageUrl,
-            tursabLicense: dbData.tursab_license ? String(dbData.tursab_license) : currentLocalSettings.tursabLicense,
-            headquarters: dbData.headquarters ? String(dbData.headquarters) : currentLocalSettings.headquarters,
-
-            heroBackgroundImage: dbData.hero_background_image ? String(dbData.hero_background_image) : currentLocalSettings.heroBackgroundImage,
-            heroBackgroundOpacity: typeof dbData.hero_background_opacity === 'number' ? dbData.hero_background_opacity : currentLocalSettings.heroBackgroundOpacity,
-            heroBadgeText: dbData.hero_badge_text ? String(dbData.hero_badge_text) : currentLocalSettings.heroBadgeText,
-            heroBadgeVisible: dbData.hero_badge_visible !== null && dbData.hero_badge_visible !== undefined ? Boolean(dbData.hero_badge_visible) : currentLocalSettings.heroBadgeVisible,
-            heroHeadline: dbData.hero_headline ? String(dbData.hero_headline) : currentLocalSettings.heroHeadline,
-            heroSubtitle: dbData.hero_subtitle ? String(dbData.hero_subtitle) : currentLocalSettings.heroSubtitle,
-            heroPrimaryCtaText: dbData.hero_primary_cta_text ? String(dbData.hero_primary_cta_text) : currentLocalSettings.heroPrimaryCtaText,
-            heroPrimaryCtaCustomUrl: dbData.hero_primary_cta_custom_url !== undefined && dbData.hero_primary_cta_custom_url !== null ? String(dbData.hero_primary_cta_custom_url) : currentLocalSettings.heroPrimaryCtaCustomUrl,
-            heroPrimaryCtaVisible: dbData.hero_primary_cta_visible !== null && dbData.hero_primary_cta_visible !== undefined ? Boolean(dbData.hero_primary_cta_visible) : currentLocalSettings.heroPrimaryCtaVisible,
-            heroSecondaryCtaText: dbData.hero_secondary_cta_text ? String(dbData.hero_secondary_cta_text) : currentLocalSettings.heroSecondaryCtaText,
-            heroSecondaryCtaLink: dbData.hero_secondary_cta_link ? String(dbData.hero_secondary_cta_link) : currentLocalSettings.heroSecondaryCtaLink,
-            heroSecondaryCtaVisible: dbData.hero_secondary_cta_visible !== null && dbData.hero_secondary_cta_visible !== undefined ? Boolean(dbData.hero_secondary_cta_visible) : currentLocalSettings.heroSecondaryCtaVisible,
-            heroTrustText1: dbData.hero_trust_text_1 ? String(dbData.hero_trust_text_1) : currentLocalSettings.heroTrustText1,
-            heroTrustText2: dbData.hero_trust_text_2 ? String(dbData.hero_trust_text_2) : currentLocalSettings.heroTrustText2,
-            heroTrustText3: dbData.hero_trust_text_3 ? String(dbData.hero_trust_text_3) : currentLocalSettings.heroTrustText3,
-            heroTrustBarVisible: dbData.hero_trust_bar_visible !== null && dbData.hero_trust_bar_visible !== undefined ? Boolean(dbData.hero_trust_bar_visible) : currentLocalSettings.heroTrustBarVisible,
-
-            contactBadgeText: dbData.contact_badge_text ? String(dbData.contact_badge_text) : currentLocalSettings.contactBadgeText,
-            contactBadgeVisible: dbData.contact_badge_visible !== null && dbData.contact_badge_visible !== undefined ? Boolean(dbData.contact_badge_visible) : currentLocalSettings.contactBadgeVisible,
-            contactTitle: dbData.contact_title ? String(dbData.contact_title) : currentLocalSettings.contactTitle,
-            contactSubtitle: dbData.contact_subtitle ? String(dbData.contact_subtitle) : currentLocalSettings.contactSubtitle,
-            contactWhatsAppVisible: dbData.contact_whats_app_visible !== null && dbData.contact_whats_app_visible !== undefined ? Boolean(dbData.contact_whats_app_visible) : currentLocalSettings.contactWhatsAppVisible,
-            contactWhatsAppTitle: dbData.contact_whats_app_title ? String(dbData.contact_whats_app_title) : currentLocalSettings.contactWhatsAppTitle,
-            contactWhatsAppBadge: dbData.contact_whats_app_badge ? String(dbData.contact_whats_app_badge) : currentLocalSettings.contactWhatsAppBadge,
-            contactWhatsAppDescription: dbData.contact_whats_app_description ? String(dbData.contact_whats_app_description) : currentLocalSettings.contactWhatsAppDescription,
-            contactWhatsAppButtonText: dbData.contact_whats_app_button_text ? String(dbData.contact_whats_app_button_text) : currentLocalSettings.contactWhatsAppButtonText,
-            contactWhatsAppNumber: dbData.contact_whats_app_number ? String(dbData.contact_whats_app_number) : currentLocalSettings.contactWhatsAppNumber,
-            contactWhatsAppDefaultMessage: dbData.contact_whats_app_default_message ? String(dbData.contact_whats_app_default_message) : currentLocalSettings.contactWhatsAppDefaultMessage,
-            contactTrustBarVisible: dbData.contact_trust_bar_visible !== null && dbData.contact_trust_bar_visible !== undefined ? Boolean(dbData.contact_trust_bar_visible) : currentLocalSettings.contactTrustBarVisible,
-            contactLicenseText: dbData.contact_license_text ? String(dbData.contact_license_text) : currentLocalSettings.contactLicenseText,
-            contactSupportHours: dbData.contact_support_hours ? String(dbData.contact_support_hours) : currentLocalSettings.contactSupportHours,
-            contactHeadquartersText: dbData.contact_headquarters_text ? String(dbData.contact_headquarters_text) : currentLocalSettings.contactHeadquartersText,
-          };
-          setSiteSettings(mappedSettings);
-          localStorage.setItem('ELITE_TURKEY_SETTINGS', JSON.stringify(mappedSettings));
-        } else if (!setErr && !setData) {
-          // Seed primary row in site_settings
-          await client.from('site_settings').upsert({
-            id: 'primary',
-            name_ar: currentLocalSettings.nameAr,
-            name_en: currentLocalSettings.nameEn,
-            slogan_ar: currentLocalSettings.sloganAr,
-            logo_type: currentLocalSettings.logoType,
-            logo_icon: currentLocalSettings.logoIcon,
-            logo_image_url: currentLocalSettings.logoImageUrl,
-            tursab_license: currentLocalSettings.tursabLicense,
-            headquarters: currentLocalSettings.headquarters,
-
-            hero_background_image: currentLocalSettings.heroBackgroundImage,
-            hero_background_opacity: currentLocalSettings.heroBackgroundOpacity,
-            hero_badge_text: currentLocalSettings.heroBadgeText,
-            hero_badge_visible: currentLocalSettings.heroBadgeVisible,
-            hero_headline: currentLocalSettings.heroHeadline,
-            hero_subtitle: currentLocalSettings.heroSubtitle,
-            hero_primary_cta_text: currentLocalSettings.heroPrimaryCtaText,
-            hero_primary_cta_custom_url: currentLocalSettings.heroPrimaryCtaCustomUrl,
-            hero_primary_cta_visible: currentLocalSettings.heroPrimaryCtaVisible,
-            hero_secondary_cta_text: currentLocalSettings.heroSecondaryCtaText,
-            hero_secondary_cta_link: currentLocalSettings.heroSecondaryCtaLink,
-            hero_secondary_cta_visible: currentLocalSettings.heroSecondaryCtaVisible,
-            hero_trust_text_1: currentLocalSettings.heroTrustText1,
-            hero_trust_text_2: currentLocalSettings.heroTrustText2,
-            hero_trust_text_3: currentLocalSettings.heroTrustText3,
-            hero_trust_bar_visible: currentLocalSettings.heroTrustBarVisible,
-
-            contact_badge_text: currentLocalSettings.contactBadgeText,
-            contact_badge_visible: currentLocalSettings.contactBadgeVisible,
-            contact_title: currentLocalSettings.contactTitle,
-            contact_subtitle: currentLocalSettings.contactSubtitle,
-            contact_whats_app_number: currentLocalSettings.contactWhatsAppNumber,
-            contact_whats_app_default_message: currentLocalSettings.contactWhatsAppDefaultMessage,
-            contact_whats_app_title: currentLocalSettings.contactWhatsAppTitle,
-            contact_whats_app_badge: currentLocalSettings.contactWhatsAppBadge,
-            contact_whats_app_description: currentLocalSettings.contactWhatsAppDescription,
-            contact_whats_app_button_text: currentLocalSettings.contactWhatsAppButtonText,
-            contact_whats_app_visible: currentLocalSettings.contactWhatsAppVisible,
-            contact_trust_bar_visible: currentLocalSettings.contactTrustBarVisible,
-            contact_license_text: currentLocalSettings.contactLicenseText,
-            contact_support_hours: currentLocalSettings.contactSupportHours,
-            contact_headquarters_text: currentLocalSettings.contactHeadquartersText,
-          });
-        }
-      } catch (err) {
-        console.warn('Initial Supabase sync check:', err);
-      }
-    };
-
-    syncSupabase();
-
-    // 6. Supabase Realtime Subscription for interactive live database reactivity
+    // Supabase Realtime Subscription for interactive live database reactivity
     const client = getSupabaseClient();
     let servicesChannel: RealtimeChannel | null = null;
     if (client) {
@@ -565,6 +554,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
 
     return () => {
+      clearTimeout(safetyTimer);
       if (client && servicesChannel) {
         client.removeChannel(servicesChannel);
       }
@@ -1241,6 +1231,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         globalLoadingText,
         startGlobalLoading,
         stopGlobalLoading,
+        isInitialDataLoading,
+        loadingStageText,
+        loadingProgressPercent,
+        refreshDatabaseData,
       }}
     >
       {children}
