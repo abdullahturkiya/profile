@@ -146,20 +146,20 @@ export const LandingPage: React.FC = () => {
             alt="أجواء وسياحة تركيا الفاخرة"
             className="h-full w-full object-cover object-center transition-all duration-700 min-w-full"
             style={{
-              opacity: siteSettings.heroBackgroundOpacity ?? 0.38,
+              opacity: siteSettings.heroBackgroundOpacity ?? (theme === 'light' ? 0.7 : 0.45),
             }}
           />
 
           {/* Deep atmospheric gradient overlay for seamless blending with current theme background */}
           <div className={`absolute inset-0 bg-gradient-to-b ${
             theme === 'light'
-              ? 'from-[#FAF7F2]/90 via-[#FAF7F2]/75 to-[#FAF7F2]'
+              ? 'from-[#FAF7F2]/45 via-[#FAF7F2]/25 to-[#FAF7F2]'
               : 'from-[#060A16]/30 via-transparent to-[#060A16]'
           }`} />
           
           {/* Subtle gold ambient glow ring inside hero */}
           <div className={`absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 h-96 w-[600px] max-w-full rounded-full blur-[120px] pointer-events-none ${
-            theme === 'light' ? 'bg-amber-300/20 opacity-15' : 'bg-amber-400 opacity-25'
+            theme === 'light' ? 'bg-amber-300/30 opacity-25' : 'bg-amber-400 opacity-25'
           }`} />
         </div>
 
