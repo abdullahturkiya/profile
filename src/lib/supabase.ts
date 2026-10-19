@@ -78,6 +78,15 @@ CREATE TABLE IF NOT EXISTS public.services (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- ترقية وتوسيع أعمدة الخدمات لتفادي قيود الطول (VARCHAR) لأي صور Base64 مرفوعة مباشرة
+ALTER TABLE public.services ALTER COLUMN id TYPE TEXT;
+ALTER TABLE public.services ALTER COLUMN title TYPE TEXT;
+ALTER TABLE public.services ALTER COLUMN english_title TYPE TEXT;
+ALTER TABLE public.services ALTER COLUMN description TYPE TEXT;
+ALTER TABLE public.services ALTER COLUMN image_url TYPE TEXT;
+ALTER TABLE public.services ALTER COLUMN destination TYPE TEXT;
+ALTER TABLE public.services ALTER COLUMN badge TYPE TEXT;
+
 -- 2. جدول تقييمات وتعليقات الضيوف مع حالة التدقيق والمراجعة (reviews)
 CREATE TABLE IF NOT EXISTS public.reviews (
     id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
@@ -89,6 +98,15 @@ CREATE TABLE IF NOT EXISTS public.reviews (
     status TEXT CHECK (status IN ('pending', 'approved', 'rejected')) DEFAULT 'pending',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- ضبط الربط وحذف التقييمات التابعة تلقائياً عند حذف الخدمة (ON DELETE CASCADE) لمنع أخطاء الحذف
+DO $$ 
+BEGIN
+    ALTER TABLE public.reviews DROP CONSTRAINT IF EXISTS reviews_service_id_fkey;
+    ALTER TABLE public.reviews ADD CONSTRAINT reviews_service_id_fkey FOREIGN KEY (service_id) REFERENCES public.services(id) ON DELETE CASCADE;
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END $$;
 
 -- 3. جدول قنوات وروابط التواصل الاجتماعي والواتساب المخصص (social_links)
 CREATE TABLE IF NOT EXISTS public.social_links (
@@ -190,6 +208,8 @@ ALTER TABLE public.site_settings ADD COLUMN IF NOT EXISTS contact_trust_bar_visi
 ALTER TABLE public.site_settings ADD COLUMN IF NOT EXISTS contact_license_text TEXT;
 ALTER TABLE public.site_settings ADD COLUMN IF NOT EXISTS contact_support_hours TEXT;
 ALTER TABLE public.site_settings ADD COLUMN IF NOT EXISTS contact_headquarters_text TEXT;
+ALTER TABLE public.site_settings ALTER COLUMN logo_image_url TYPE TEXT;
+ALTER TABLE public.site_settings ALTER COLUMN hero_background_image TYPE TEXT;
 
 -- 5. جدول معايير الضيافة الملكية (hospitality_standards)
 CREATE TABLE IF NOT EXISTS public.hospitality_standards (
@@ -220,7 +240,15 @@ INSERT INTO public.admin_users (email, password, name, role)
 VALUES ('3lishops@gmail.com', 'admin123456', 'مدير النظام', 'superadmin')
 ON CONFLICT (email) DO NOTHING;
 
--- 7. تفعيل Row Level Security (RLS) مع منح صلاحيات الإدخال والتعديل والحذف الشاملة
+-- 7. تفعيل الصلاحيات الشاملة لجميع الجداول (GRANT ALL)
+GRANT ALL ON TABLE public.services TO anon, authenticated, service_role;
+GRANT ALL ON TABLE public.reviews TO anon, authenticated, service_role;
+GRANT ALL ON TABLE public.social_links TO anon, authenticated, service_role;
+GRANT ALL ON TABLE public.site_settings TO anon, authenticated, service_role;
+GRANT ALL ON TABLE public.hospitality_standards TO anon, authenticated, service_role;
+GRANT ALL ON TABLE public.admin_users TO anon, authenticated, service_role;
+
+-- 8. تفعيل Row Level Security (RLS) مع منح صلاحيات الإدخال والتعديل والحذف الشاملة
 ALTER TABLE public.services ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.reviews ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.social_links ENABLE ROW LEVEL SECURITY;
@@ -253,11 +281,49 @@ DROP POLICY IF EXISTS "Allow All Standards" ON public.hospitality_standards;
 DROP POLICY IF EXISTS "Admin Users Access" ON public.admin_users;
 DROP POLICY IF EXISTS "Allow All Admin Users" ON public.admin_users;
 
--- إنشاء سياسات السماح الشاملة للعمليات (USING + WITH CHECK)
-CREATE POLICY "Allow All Services" ON public.services FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow All Reviews" ON public.reviews FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow All Social Links" ON public.social_links FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow All Settings" ON public.site_settings FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow All Standards" ON public.hospitality_standards FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow All Admin Users" ON public.admin_users FOR ALL USING (true) WITH CHECK (true);
+-- إنشاء سياسات السماح الشاملة لجميع العمليات (SELECT, INSERT, UPDATE, DELETE)
+CREATE POLICY "Allow All Services" ON public.services FOR ALL TO public, anon, authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Allow All Reviews" ON public.reviews FOR ALL TO public, anon, authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Allow All Social Links" ON public.social_links FOR ALL TO public, anon, authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Allow All Settings" ON public.site_settings FOR ALL TO public, anon, authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Allow All Standards" ON public.hospitality_standards FOR ALL TO public, anon, authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Allow All Admin Users" ON public.admin_users FOR ALL TO public, anon, authenticated USING (true) WITH CHECK (true);
+
+-- 9. تفعيل التفاعل الفوري Realtime لقاعدة البيانات
+ALTER TABLE public.services REPLICA IDENTITY FULL;
+DO $$ 
+BEGIN 
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.services; 
+EXCEPTION 
+    WHEN OTHERS THEN NULL; 
+END $$;
+
+DO $$ 
+BEGIN 
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.reviews; 
+EXCEPTION 
+    WHEN OTHERS THEN NULL; 
+END $$;
+
+DO $$ 
+BEGIN 
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.site_settings; 
+EXCEPTION 
+    WHEN OTHERS THEN NULL; 
+END $$;
+
+DO $$ 
+BEGIN 
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.hospitality_standards; 
+EXCEPTION 
+    WHEN OTHERS THEN NULL; 
+END $$;
+
+DO $$ 
+BEGIN 
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.social_links; 
+EXCEPTION 
+    WHEN OTHERS THEN NULL; 
+END $$;
+
 `;

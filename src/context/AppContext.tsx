@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { RealtimeChannel } from '@supabase/supabase-js';
 import { TourismService, Review, SocialLink, AdminUser, SiteSettings, HospitalityStandard, ThemeMode } from '../types';
 import { INITIAL_SERVICES, INITIAL_REVIEWS, INITIAL_SOCIAL_LINKS, INITIAL_SITE_SETTINGS, INITIAL_STANDARDS } from '../data/initialData';
 import { getSupabaseClient, resetSupabaseClient } from '../lib/supabase';
@@ -279,8 +280,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
 
       try {
-        // 1. Check services
-        const { data: srvData, error: srvErr } = await client.from('services').select('*');
+        // 1. Check services (ordered by created_at descending)
+        const { data: srvData, error: srvErr } = await client
+          .from('services')
+          .select('*')
+          .order('created_at', { ascending: false });
         if (!srvErr) {
           setIsSupabaseConnected(true);
           if (srvData && srvData.length > 0) {
@@ -500,6 +504,71 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
 
     syncSupabase();
+
+    // 6. Supabase Realtime Subscription for interactive live database reactivity
+    const client = getSupabaseClient();
+    let servicesChannel: RealtimeChannel | null = null;
+    if (client) {
+      servicesChannel = client
+        .channel('realtime:services')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'services' },
+          (payload) => {
+            console.log('Realtime service update event:', payload);
+            if (payload.eventType === 'INSERT') {
+              const s = payload.new as Record<string, unknown>;
+              const mapped: TourismService = {
+                id: String(s.id),
+                title: String(s.title || ''),
+                englishTitle: String(s.english_title || ''),
+                description: String(s.description || ''),
+                price: Number(s.price || 0),
+                currency: String(s.currency || 'USD'),
+                badge: String(s.badge || 'VIP'),
+                imageUrl: String(s.image_url || ''),
+                destination: String(s.destination || 'إسطنبول'),
+                features: Array.isArray(s.features) ? s.features as string[] : [],
+                createdAt: String(s.created_at || ''),
+              };
+              setServices((prev) => {
+                if (prev.some((x) => x.id === mapped.id)) {
+                  return prev.map((x) => (x.id === mapped.id ? mapped : x));
+                }
+                return [mapped, ...prev];
+              });
+            } else if (payload.eventType === 'UPDATE') {
+              const s = payload.new as Record<string, unknown>;
+              const mapped: TourismService = {
+                id: String(s.id),
+                title: String(s.title || ''),
+                englishTitle: String(s.english_title || ''),
+                description: String(s.description || ''),
+                price: Number(s.price || 0),
+                currency: String(s.currency || 'USD'),
+                badge: String(s.badge || 'VIP'),
+                imageUrl: String(s.image_url || ''),
+                destination: String(s.destination || 'إسطنبول'),
+                features: Array.isArray(s.features) ? s.features as string[] : [],
+                createdAt: String(s.created_at || ''),
+              };
+              setServices((prev) => prev.map((x) => (x.id === mapped.id ? mapped : x)));
+            } else if (payload.eventType === 'DELETE') {
+              const deletedId = (payload.old as { id?: string })?.id;
+              if (deletedId) {
+                setServices((prev) => prev.filter((x) => x.id !== deletedId));
+              }
+            }
+          }
+        )
+        .subscribe();
+    }
+
+    return () => {
+      if (client && servicesChannel) {
+        client.removeChannel(servicesChannel);
+      }
+    };
   }, [adminUser.isAuthenticated, adminUser.email]);
 
   // Update Site Settings
@@ -673,7 +742,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
         if (error) {
           console.error('Supabase insert service error:', error);
-          showToast('تنبيه: حدث خطأ أثناء إضافة الخدمة في قاعدة البيانات', 'error');
+          showToast(`تنبيه: حدث خطأ أثناء إضافة الخدمة في قاعدة البيانات (${error.message || ''})`, 'error');
+          stopGlobalLoading();
+          return;
         }
       } catch (err) {
         console.warn('Supabase sync skipped', err);
@@ -685,7 +756,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const updateService = async (id: string, updates: Partial<TourismService>) => {
     startGlobalLoading('جاري حفظ تعديلات الخدمة...');
-    setServices((prev) => prev.map((s) => (s.id === id ? { ...s, ...updates } : s)));
+    let previousServices: TourismService[] = [];
+    setServices((prev) => {
+      previousServices = prev;
+      return prev.map((s) => (s.id === id ? { ...s, ...updates } : s));
+    });
 
     const client = getSupabaseClient();
     if (client) {
@@ -701,31 +776,86 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (updates.destination !== undefined) mappedUpdates.destination = updates.destination;
         if (updates.features !== undefined) mappedUpdates.features = updates.features;
 
-        const { error } = await client.from('services').update(mappedUpdates).eq('id', id);
+        // Perform update and check representation
+        const { data: updatedRows, error } = await client
+          .from('services')
+          .update(mappedUpdates)
+          .eq('id', id)
+          .select();
+
         if (error) {
           console.error('Supabase update service error:', error);
-          showToast('تنبيه: حدث خطأ أثناء تحديث الخدمة في قاعدة البيانات', 'error');
+          showToast(`تنبيه: تعذر حفظ التعديل في قاعدة البيانات (${error.message || ''})`, 'error');
+          setServices(previousServices);
+          stopGlobalLoading();
+          return;
+        }
+
+        // If no rows were matched in Supabase (e.g. was stored locally), fallback to upsert
+        if (!updatedRows || updatedRows.length === 0) {
+          const currentItem = previousServices.find((s) => s.id === id);
+          if (currentItem) {
+            const { error: upsertErr } = await client.from('services').upsert({
+              id,
+              title: updates.title ?? currentItem.title,
+              english_title: updates.englishTitle ?? currentItem.englishTitle,
+              description: updates.description ?? currentItem.description,
+              price: updates.price ?? currentItem.price,
+              currency: updates.currency ?? currentItem.currency,
+              badge: updates.badge ?? currentItem.badge,
+              image_url: updates.imageUrl ?? currentItem.imageUrl,
+              destination: updates.destination ?? currentItem.destination,
+              features: updates.features ?? currentItem.features,
+              created_at: currentItem.createdAt || new Date().toISOString(),
+            });
+
+            if (upsertErr) {
+              console.error('Supabase upsert service fallback error:', upsertErr);
+              showToast(`تنبيه: تعذر إتمام حفظ الخدمة في قاعدة البيانات (${upsertErr.message || ''})`, 'error');
+              setServices(previousServices);
+              stopGlobalLoading();
+              return;
+            }
+          }
         }
       } catch (err) {
         console.warn('Supabase update skipped', err);
       }
     }
     stopGlobalLoading();
-    showToast('تم تحديث تفاصيل الخدمة السياحية بنجاح في قاعدة البيانات', 'success');
+    showToast('تم تحديث وحفظ تفاصيل الخدمة السياحية بنجاح في قاعدة البيانات', 'success');
   };
 
   const deleteService = async (id: string) => {
-    startGlobalLoading('جاري حذف الخدمة...');
-    setServices((prev) => prev.filter((s) => s.id !== id));
-    setReviews((prev) => prev.filter((r) => r.serviceId !== id));
+    startGlobalLoading('جاري حذف الخدمة من قاعدة البيانات...');
+    let previousServices: TourismService[] = [];
+    let previousReviews: Review[] = [];
+
+    setServices((prev) => {
+      previousServices = prev;
+      return prev.filter((s) => s.id !== id);
+    });
+    setReviews((prev) => {
+      previousReviews = prev;
+      return prev.filter((r) => r.serviceId !== id);
+    });
 
     const client = getSupabaseClient();
     if (client) {
       try {
+        // 1. Delete associated reviews first to satisfy foreign key constraints
+        await client.from('reviews').delete().eq('service_id', id);
+
+        // 2. Delete service from services table
         const { error } = await client.from('services').delete().eq('id', id);
         if (error) {
           console.error('Supabase delete service error:', error);
-          showToast('تنبيه: حدث خطأ أثناء حذف الخدمة من قاعدة البيانات', 'error');
+          showToast(`تنبيه: تعذر حذف الخدمة من قاعدة البيانات (${error.message || ''})`, 'error');
+          // Rollback state
+          setServices(previousServices);
+          setReviews(previousReviews);
+          stopGlobalLoading();
+          return;
         }
       } catch (err) {
         console.warn('Supabase delete skipped', err);

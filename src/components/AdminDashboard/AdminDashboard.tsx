@@ -119,6 +119,8 @@ export const AdminDashboard: React.FC = () => {
   // Active Tab: services | reviews | standards | socials | branding | hero
   const [activeTab, setActiveTab] = useState<'services' | 'reviews' | 'standards' | 'socials' | 'branding' | 'hero'>('services');
   const [sqlCopied, setSqlCopied] = useState(false);
+  const [isSqlModalOpen, setIsSqlModalOpen] = useState(false);
+  const [deletingServiceId, setDeletingServiceId] = useState<string | null>(null);
 
   // Reviews filter
   const [reviewFilter, setReviewFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending');
@@ -456,6 +458,17 @@ export const AdminDashboard: React.FC = () => {
 
           {/* Quick Actions */}
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* Database & SQL Scripts */}
+            <button
+              onClick={() => setIsSqlModalOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-emerald-500/10 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/20 transition-all shadow-[0_0_12px_rgba(16,185,129,0.15)]"
+              title="أكواد SQL وإعدادات قاعدة بيانات Supabase"
+            >
+              <Database className="h-3.5 w-3.5 text-emerald-400" />
+              <span className="hidden sm:inline">أكواد SQL لقاعدة البيانات</span>
+              <span className="sm:hidden">SQL</span>
+            </button>
+
             {/* View Site */}
             <button
               onClick={() => navigateTo('landing')}
@@ -641,17 +654,33 @@ export const AdminDashboard: React.FC = () => {
                           <span>تعديل</span>
                         </button>
 
-                        <button
-                          onClick={() => {
-                            if (window.confirm(`هل أنت متأكد من حذف خدمة "${srv.title}"؟`)) {
-                              deleteService(srv.id);
-                            }
-                          }}
-                          className="p-2 rounded-xl border border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all"
-                          title="حذف الخدمة"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
+                        {deletingServiceId === srv.id ? (
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <button
+                              onClick={async () => {
+                                await deleteService(srv.id);
+                                setDeletingServiceId(null);
+                              }}
+                              className="px-2.5 py-2 rounded-xl border border-red-500 bg-red-600 text-white text-[11px] font-bold hover:bg-red-700 transition-all shadow-[0_0_10px_rgba(239,68,68,0.3)] whitespace-nowrap"
+                            >
+                              تأكيد الحذف
+                            </button>
+                            <button
+                              onClick={() => setDeletingServiceId(null)}
+                              className="px-2 py-2 rounded-xl border border-slate-700 bg-slate-800 text-slate-300 text-[11px] hover:bg-slate-700 transition-all whitespace-nowrap"
+                            >
+                              إلغاء
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => setDeletingServiceId(srv.id)}
+                            className="p-2 rounded-xl border border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all"
+                            title="حذف الخدمة"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        )}
                       </div>
                     </div>
                   </motion.div>
@@ -2849,6 +2878,97 @@ export const AdminDashboard: React.FC = () => {
                   </button>
                 </div>
               </form>
+            </motion.div>
+          </div>
+        )}
+
+        {/* 4. SQL Schema Modal */}
+        {isSqlModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="w-full max-w-4xl max-h-[90vh] flex flex-col rounded-3xl border border-amber-400/40 bg-slate-900 shadow-2xl overflow-hidden"
+            >
+              {/* Modal Header */}
+              <div className="flex items-center justify-between p-5 border-b border-amber-400/20 bg-slate-950/60">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
+                    <Database className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-slate-100 flex items-center gap-2">
+                      <span>سكربت SQL لقاعدة بيانات Supabase</span>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                        {isSupabaseConnected ? 'متصل بـ Supabase' : 'قيد المزامنة'}
+                      </span>
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      ألصق هذا الكود في محرر SQL في Supabase لتفعيل التفاعل الفوري Realtime، ورفع قيود الطول، وتمكين صلاحيات الحذف والتعديل المباشر.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsSqlModalOpen(false)}
+                  className="p-2 rounded-xl text-slate-400 hover:text-slate-100 hover:bg-slate-800 transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Instructions Bar */}
+              <div className="px-5 py-3 bg-amber-400/10 border-b border-amber-400/20 flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2 text-xs text-amber-200">
+                  <Sparkles className="h-4 w-4 text-amber-400 shrink-0" />
+                  <span>
+                    الخطوات: افتح <strong>Supabase Dashboard</strong> ⬅ قسم <strong>SQL Editor</strong> ⬅ أنشئ <strong>New Query</strong> ⬅ الصق الكود واضغط <strong>Run</strong>.
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(SUPABASE_SQL_SCHEMA);
+                    setSqlCopied(true);
+                    setTimeout(() => setSqlCopied(false), 2500);
+                  }}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md active:scale-95"
+                  style={{
+                    background: 'linear-gradient(135deg, #FFF0B3 0%, #D4AF37 45%, #AA771C 80%, #F5DE93 100%)',
+                    color: '#0a0d14',
+                  }}
+                >
+                  {sqlCopied ? (
+                    <>
+                      <CheckCheck className="h-4 w-4 text-emerald-950" />
+                      <span>تم نسخ الكود بنجاح!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-4 w-4 text-amber-950" />
+                      <span>نسخ سكربت SQL بالكامل</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {/* Code Viewer */}
+              <div className="flex-1 overflow-y-auto p-5 bg-slate-950 text-slate-300 font-mono text-xs leading-relaxed select-all">
+                <pre className="whitespace-pre-wrap">{SUPABASE_SQL_SCHEMA}</pre>
+              </div>
+
+              {/* Footer */}
+              <div className="p-4 border-t border-slate-800 bg-slate-950/80 flex items-center justify-between">
+                <span className="text-[11px] text-slate-400">
+                  يشمل الجداول، المفاتيح، سياسات RLS الشاملة، وبث التحديثات الفورية Realtime.
+                </span>
+                <button
+                  onClick={() => setIsSqlModalOpen(false)}
+                  className="px-5 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-200 hover:bg-slate-700 transition-colors"
+                >
+                  إغلاق
+                </button>
+              </div>
             </motion.div>
           </div>
         )}
