@@ -391,97 +391,107 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
         // 5. Check & sync site settings from Supabase database
         const { data: setData, error: setErr } = await client.from('site_settings').select('*').eq('id', 'primary').maybeSingle();
+        
+        let currentLocalSettings = INITIAL_SITE_SETTINGS;
+        try {
+          const cached = localStorage.getItem('ELITE_TURKEY_SETTINGS');
+          if (cached) currentLocalSettings = JSON.parse(cached);
+        } catch (e) {
+          console.warn('Failed to parse cached settings:', e);
+        }
+
         if (!setErr && setData) {
           const dbData = setData as Record<string, unknown>;
           const mappedSettings: SiteSettings = {
-            nameAr: String(dbData.name_ar ?? INITIAL_SITE_SETTINGS.nameAr),
-            nameEn: String(dbData.name_en ?? INITIAL_SITE_SETTINGS.nameEn),
-            sloganAr: String(dbData.slogan_ar ?? INITIAL_SITE_SETTINGS.sloganAr),
-            logoType: (dbData.logo_type as SiteSettings['logoType']) || INITIAL_SITE_SETTINGS.logoType,
-            logoIcon: (dbData.logo_icon as SiteSettings['logoIcon']) || INITIAL_SITE_SETTINGS.logoIcon,
-            logoImageUrl: String(dbData.logo_image_url ?? ''),
-            tursabLicense: String(dbData.tursab_license ?? INITIAL_SITE_SETTINGS.tursabLicense),
-            headquarters: String(dbData.headquarters ?? INITIAL_SITE_SETTINGS.headquarters),
+            nameAr: dbData.name_ar ? String(dbData.name_ar) : currentLocalSettings.nameAr,
+            nameEn: dbData.name_en ? String(dbData.name_en) : currentLocalSettings.nameEn,
+            sloganAr: dbData.slogan_ar ? String(dbData.slogan_ar) : currentLocalSettings.sloganAr,
+            logoType: (dbData.logo_type as SiteSettings['logoType']) || currentLocalSettings.logoType,
+            logoIcon: (dbData.logo_icon as SiteSettings['logoIcon']) || currentLocalSettings.logoIcon,
+            logoImageUrl: dbData.logo_image_url !== undefined && dbData.logo_image_url !== null ? String(dbData.logo_image_url) : currentLocalSettings.logoImageUrl,
+            tursabLicense: dbData.tursab_license ? String(dbData.tursab_license) : currentLocalSettings.tursabLicense,
+            headquarters: dbData.headquarters ? String(dbData.headquarters) : currentLocalSettings.headquarters,
 
-            heroBackgroundImage: String(dbData.hero_background_image ?? INITIAL_SITE_SETTINGS.heroBackgroundImage),
-            heroBackgroundOpacity: typeof dbData.hero_background_opacity === 'number' ? dbData.hero_background_opacity : INITIAL_SITE_SETTINGS.heroBackgroundOpacity,
-            heroBadgeText: String(dbData.hero_badge_text ?? INITIAL_SITE_SETTINGS.heroBadgeText),
-            heroBadgeVisible: dbData.hero_badge_visible !== null && dbData.hero_badge_visible !== undefined ? Boolean(dbData.hero_badge_visible) : INITIAL_SITE_SETTINGS.heroBadgeVisible,
-            heroHeadline: String(dbData.hero_headline ?? INITIAL_SITE_SETTINGS.heroHeadline),
-            heroSubtitle: String(dbData.hero_subtitle ?? INITIAL_SITE_SETTINGS.heroSubtitle),
-            heroPrimaryCtaText: String(dbData.hero_primary_cta_text ?? INITIAL_SITE_SETTINGS.heroPrimaryCtaText),
-            heroPrimaryCtaCustomUrl: String(dbData.hero_primary_cta_custom_url ?? ''),
-            heroPrimaryCtaVisible: dbData.hero_primary_cta_visible !== null && dbData.hero_primary_cta_visible !== undefined ? Boolean(dbData.hero_primary_cta_visible) : INITIAL_SITE_SETTINGS.heroPrimaryCtaVisible,
-            heroSecondaryCtaText: String(dbData.hero_secondary_cta_text ?? INITIAL_SITE_SETTINGS.heroSecondaryCtaText),
-            heroSecondaryCtaLink: String(dbData.hero_secondary_cta_link ?? INITIAL_SITE_SETTINGS.heroSecondaryCtaLink),
-            heroSecondaryCtaVisible: dbData.hero_secondary_cta_visible !== null && dbData.hero_secondary_cta_visible !== undefined ? Boolean(dbData.hero_secondary_cta_visible) : INITIAL_SITE_SETTINGS.heroSecondaryCtaVisible,
-            heroTrustText1: String(dbData.hero_trust_text_1 ?? INITIAL_SITE_SETTINGS.heroTrustText1),
-            heroTrustText2: String(dbData.hero_trust_text_2 ?? INITIAL_SITE_SETTINGS.heroTrustText2),
-            heroTrustText3: String(dbData.hero_trust_text_3 ?? INITIAL_SITE_SETTINGS.heroTrustText3),
-            heroTrustBarVisible: dbData.hero_trust_bar_visible !== null && dbData.hero_trust_bar_visible !== undefined ? Boolean(dbData.hero_trust_bar_visible) : INITIAL_SITE_SETTINGS.heroTrustBarVisible,
+            heroBackgroundImage: dbData.hero_background_image ? String(dbData.hero_background_image) : currentLocalSettings.heroBackgroundImage,
+            heroBackgroundOpacity: typeof dbData.hero_background_opacity === 'number' ? dbData.hero_background_opacity : currentLocalSettings.heroBackgroundOpacity,
+            heroBadgeText: dbData.hero_badge_text ? String(dbData.hero_badge_text) : currentLocalSettings.heroBadgeText,
+            heroBadgeVisible: dbData.hero_badge_visible !== null && dbData.hero_badge_visible !== undefined ? Boolean(dbData.hero_badge_visible) : currentLocalSettings.heroBadgeVisible,
+            heroHeadline: dbData.hero_headline ? String(dbData.hero_headline) : currentLocalSettings.heroHeadline,
+            heroSubtitle: dbData.hero_subtitle ? String(dbData.hero_subtitle) : currentLocalSettings.heroSubtitle,
+            heroPrimaryCtaText: dbData.hero_primary_cta_text ? String(dbData.hero_primary_cta_text) : currentLocalSettings.heroPrimaryCtaText,
+            heroPrimaryCtaCustomUrl: dbData.hero_primary_cta_custom_url !== undefined && dbData.hero_primary_cta_custom_url !== null ? String(dbData.hero_primary_cta_custom_url) : currentLocalSettings.heroPrimaryCtaCustomUrl,
+            heroPrimaryCtaVisible: dbData.hero_primary_cta_visible !== null && dbData.hero_primary_cta_visible !== undefined ? Boolean(dbData.hero_primary_cta_visible) : currentLocalSettings.heroPrimaryCtaVisible,
+            heroSecondaryCtaText: dbData.hero_secondary_cta_text ? String(dbData.hero_secondary_cta_text) : currentLocalSettings.heroSecondaryCtaText,
+            heroSecondaryCtaLink: dbData.hero_secondary_cta_link ? String(dbData.hero_secondary_cta_link) : currentLocalSettings.heroSecondaryCtaLink,
+            heroSecondaryCtaVisible: dbData.hero_secondary_cta_visible !== null && dbData.hero_secondary_cta_visible !== undefined ? Boolean(dbData.hero_secondary_cta_visible) : currentLocalSettings.heroSecondaryCtaVisible,
+            heroTrustText1: dbData.hero_trust_text_1 ? String(dbData.hero_trust_text_1) : currentLocalSettings.heroTrustText1,
+            heroTrustText2: dbData.hero_trust_text_2 ? String(dbData.hero_trust_text_2) : currentLocalSettings.heroTrustText2,
+            heroTrustText3: dbData.hero_trust_text_3 ? String(dbData.hero_trust_text_3) : currentLocalSettings.heroTrustText3,
+            heroTrustBarVisible: dbData.hero_trust_bar_visible !== null && dbData.hero_trust_bar_visible !== undefined ? Boolean(dbData.hero_trust_bar_visible) : currentLocalSettings.heroTrustBarVisible,
 
-            contactBadgeText: String(dbData.contact_badge_text ?? INITIAL_SITE_SETTINGS.contactBadgeText),
-            contactBadgeVisible: dbData.contact_badge_visible !== null && dbData.contact_badge_visible !== undefined ? Boolean(dbData.contact_badge_visible) : INITIAL_SITE_SETTINGS.contactBadgeVisible,
-            contactTitle: String(dbData.contact_title ?? INITIAL_SITE_SETTINGS.contactTitle),
-            contactSubtitle: String(dbData.contact_subtitle ?? INITIAL_SITE_SETTINGS.contactSubtitle),
-            contactWhatsAppVisible: dbData.contact_whats_app_visible !== null && dbData.contact_whats_app_visible !== undefined ? Boolean(dbData.contact_whats_app_visible) : INITIAL_SITE_SETTINGS.contactWhatsAppVisible,
-            contactWhatsAppTitle: String(dbData.contact_whats_app_title ?? INITIAL_SITE_SETTINGS.contactWhatsAppTitle),
-            contactWhatsAppBadge: String(dbData.contact_whats_app_badge ?? INITIAL_SITE_SETTINGS.contactWhatsAppBadge),
-            contactWhatsAppDescription: String(dbData.contact_whats_app_description ?? INITIAL_SITE_SETTINGS.contactWhatsAppDescription),
-            contactWhatsAppButtonText: String(dbData.contact_whats_app_button_text ?? INITIAL_SITE_SETTINGS.contactWhatsAppButtonText),
-            contactWhatsAppNumber: String(dbData.contact_whats_app_number ?? INITIAL_SITE_SETTINGS.contactWhatsAppNumber),
-            contactWhatsAppDefaultMessage: String(dbData.contact_whats_app_default_message ?? INITIAL_SITE_SETTINGS.contactWhatsAppDefaultMessage),
-            contactTrustBarVisible: dbData.contact_trust_bar_visible !== null && dbData.contact_trust_bar_visible !== undefined ? Boolean(dbData.contact_trust_bar_visible) : INITIAL_SITE_SETTINGS.contactTrustBarVisible,
-            contactLicenseText: String(dbData.contact_license_text ?? INITIAL_SITE_SETTINGS.contactLicenseText),
-            contactSupportHours: String(dbData.contact_support_hours ?? INITIAL_SITE_SETTINGS.contactSupportHours),
-            contactHeadquartersText: String(dbData.contact_headquarters_text ?? INITIAL_SITE_SETTINGS.contactHeadquartersText),
+            contactBadgeText: dbData.contact_badge_text ? String(dbData.contact_badge_text) : currentLocalSettings.contactBadgeText,
+            contactBadgeVisible: dbData.contact_badge_visible !== null && dbData.contact_badge_visible !== undefined ? Boolean(dbData.contact_badge_visible) : currentLocalSettings.contactBadgeVisible,
+            contactTitle: dbData.contact_title ? String(dbData.contact_title) : currentLocalSettings.contactTitle,
+            contactSubtitle: dbData.contact_subtitle ? String(dbData.contact_subtitle) : currentLocalSettings.contactSubtitle,
+            contactWhatsAppVisible: dbData.contact_whats_app_visible !== null && dbData.contact_whats_app_visible !== undefined ? Boolean(dbData.contact_whats_app_visible) : currentLocalSettings.contactWhatsAppVisible,
+            contactWhatsAppTitle: dbData.contact_whats_app_title ? String(dbData.contact_whats_app_title) : currentLocalSettings.contactWhatsAppTitle,
+            contactWhatsAppBadge: dbData.contact_whats_app_badge ? String(dbData.contact_whats_app_badge) : currentLocalSettings.contactWhatsAppBadge,
+            contactWhatsAppDescription: dbData.contact_whats_app_description ? String(dbData.contact_whats_app_description) : currentLocalSettings.contactWhatsAppDescription,
+            contactWhatsAppButtonText: dbData.contact_whats_app_button_text ? String(dbData.contact_whats_app_button_text) : currentLocalSettings.contactWhatsAppButtonText,
+            contactWhatsAppNumber: dbData.contact_whats_app_number ? String(dbData.contact_whats_app_number) : currentLocalSettings.contactWhatsAppNumber,
+            contactWhatsAppDefaultMessage: dbData.contact_whats_app_default_message ? String(dbData.contact_whats_app_default_message) : currentLocalSettings.contactWhatsAppDefaultMessage,
+            contactTrustBarVisible: dbData.contact_trust_bar_visible !== null && dbData.contact_trust_bar_visible !== undefined ? Boolean(dbData.contact_trust_bar_visible) : currentLocalSettings.contactTrustBarVisible,
+            contactLicenseText: dbData.contact_license_text ? String(dbData.contact_license_text) : currentLocalSettings.contactLicenseText,
+            contactSupportHours: dbData.contact_support_hours ? String(dbData.contact_support_hours) : currentLocalSettings.contactSupportHours,
+            contactHeadquartersText: dbData.contact_headquarters_text ? String(dbData.contact_headquarters_text) : currentLocalSettings.contactHeadquartersText,
           };
           setSiteSettings(mappedSettings);
+          localStorage.setItem('ELITE_TURKEY_SETTINGS', JSON.stringify(mappedSettings));
         } else if (!setErr && !setData) {
           // Seed primary row in site_settings
           await client.from('site_settings').upsert({
             id: 'primary',
-            name_ar: INITIAL_SITE_SETTINGS.nameAr,
-            name_en: INITIAL_SITE_SETTINGS.nameEn,
-            slogan_ar: INITIAL_SITE_SETTINGS.sloganAr,
-            logo_type: INITIAL_SITE_SETTINGS.logoType,
-            logo_icon: INITIAL_SITE_SETTINGS.logoIcon,
-            logo_image_url: INITIAL_SITE_SETTINGS.logoImageUrl,
-            tursab_license: INITIAL_SITE_SETTINGS.tursabLicense,
-            headquarters: INITIAL_SITE_SETTINGS.headquarters,
+            name_ar: currentLocalSettings.nameAr,
+            name_en: currentLocalSettings.nameEn,
+            slogan_ar: currentLocalSettings.sloganAr,
+            logo_type: currentLocalSettings.logoType,
+            logo_icon: currentLocalSettings.logoIcon,
+            logo_image_url: currentLocalSettings.logoImageUrl,
+            tursab_license: currentLocalSettings.tursabLicense,
+            headquarters: currentLocalSettings.headquarters,
 
-            hero_background_image: INITIAL_SITE_SETTINGS.heroBackgroundImage,
-            hero_background_opacity: INITIAL_SITE_SETTINGS.heroBackgroundOpacity,
-            hero_badge_text: INITIAL_SITE_SETTINGS.heroBadgeText,
-            hero_badge_visible: INITIAL_SITE_SETTINGS.heroBadgeVisible,
-            hero_headline: INITIAL_SITE_SETTINGS.heroHeadline,
-            hero_subtitle: INITIAL_SITE_SETTINGS.heroSubtitle,
-            hero_primary_cta_text: INITIAL_SITE_SETTINGS.heroPrimaryCtaText,
-            hero_primary_cta_custom_url: INITIAL_SITE_SETTINGS.heroPrimaryCtaCustomUrl,
-            hero_primary_cta_visible: INITIAL_SITE_SETTINGS.heroPrimaryCtaVisible,
-            hero_secondary_cta_text: INITIAL_SITE_SETTINGS.heroSecondaryCtaText,
-            hero_secondary_cta_link: INITIAL_SITE_SETTINGS.heroSecondaryCtaLink,
-            hero_secondary_cta_visible: INITIAL_SITE_SETTINGS.heroSecondaryCtaVisible,
-            hero_trust_text_1: INITIAL_SITE_SETTINGS.heroTrustText1,
-            hero_trust_text_2: INITIAL_SITE_SETTINGS.heroTrustText2,
-            hero_trust_text_3: INITIAL_SITE_SETTINGS.heroTrustText3,
-            hero_trust_bar_visible: INITIAL_SITE_SETTINGS.heroTrustBarVisible,
+            hero_background_image: currentLocalSettings.heroBackgroundImage,
+            hero_background_opacity: currentLocalSettings.heroBackgroundOpacity,
+            hero_badge_text: currentLocalSettings.heroBadgeText,
+            hero_badge_visible: currentLocalSettings.heroBadgeVisible,
+            hero_headline: currentLocalSettings.heroHeadline,
+            hero_subtitle: currentLocalSettings.heroSubtitle,
+            hero_primary_cta_text: currentLocalSettings.heroPrimaryCtaText,
+            hero_primary_cta_custom_url: currentLocalSettings.heroPrimaryCtaCustomUrl,
+            hero_primary_cta_visible: currentLocalSettings.heroPrimaryCtaVisible,
+            hero_secondary_cta_text: currentLocalSettings.heroSecondaryCtaText,
+            hero_secondary_cta_link: currentLocalSettings.heroSecondaryCtaLink,
+            hero_secondary_cta_visible: currentLocalSettings.heroSecondaryCtaVisible,
+            hero_trust_text_1: currentLocalSettings.heroTrustText1,
+            hero_trust_text_2: currentLocalSettings.heroTrustText2,
+            hero_trust_text_3: currentLocalSettings.heroTrustText3,
+            hero_trust_bar_visible: currentLocalSettings.heroTrustBarVisible,
 
-            contact_badge_text: INITIAL_SITE_SETTINGS.contactBadgeText,
-            contact_badge_visible: INITIAL_SITE_SETTINGS.contactBadgeVisible,
-            contact_title: INITIAL_SITE_SETTINGS.contactTitle,
-            contact_subtitle: INITIAL_SITE_SETTINGS.contactSubtitle,
-            contact_whats_app_number: INITIAL_SITE_SETTINGS.contactWhatsAppNumber,
-            contact_whats_app_default_message: INITIAL_SITE_SETTINGS.contactWhatsAppDefaultMessage,
-            contact_whats_app_title: INITIAL_SITE_SETTINGS.contactWhatsAppTitle,
-            contact_whats_app_badge: INITIAL_SITE_SETTINGS.contactWhatsAppBadge,
-            contact_whats_app_description: INITIAL_SITE_SETTINGS.contactWhatsAppDescription,
-            contact_whats_app_button_text: INITIAL_SITE_SETTINGS.contactWhatsAppButtonText,
-            contact_whats_app_visible: INITIAL_SITE_SETTINGS.contactWhatsAppVisible,
-            contact_trust_bar_visible: INITIAL_SITE_SETTINGS.contactTrustBarVisible,
-            contact_license_text: INITIAL_SITE_SETTINGS.contactLicenseText,
-            contact_support_hours: INITIAL_SITE_SETTINGS.contactSupportHours,
-            contact_headquarters_text: INITIAL_SITE_SETTINGS.contactHeadquartersText,
+            contact_badge_text: currentLocalSettings.contactBadgeText,
+            contact_badge_visible: currentLocalSettings.contactBadgeVisible,
+            contact_title: currentLocalSettings.contactTitle,
+            contact_subtitle: currentLocalSettings.contactSubtitle,
+            contact_whats_app_number: currentLocalSettings.contactWhatsAppNumber,
+            contact_whats_app_default_message: currentLocalSettings.contactWhatsAppDefaultMessage,
+            contact_whats_app_title: currentLocalSettings.contactWhatsAppTitle,
+            contact_whats_app_badge: currentLocalSettings.contactWhatsAppBadge,
+            contact_whats_app_description: currentLocalSettings.contactWhatsAppDescription,
+            contact_whats_app_button_text: currentLocalSettings.contactWhatsAppButtonText,
+            contact_whats_app_visible: currentLocalSettings.contactWhatsAppVisible,
+            contact_trust_bar_visible: currentLocalSettings.contactTrustBarVisible,
+            contact_license_text: currentLocalSettings.contactLicenseText,
+            contact_support_hours: currentLocalSettings.contactSupportHours,
+            contact_headquarters_text: currentLocalSettings.contactHeadquartersText,
           });
         }
       } catch (err) {
@@ -495,64 +505,65 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Update Site Settings
   const updateSiteSettings = async (updates: Partial<SiteSettings>) => {
     startGlobalLoading('جاري حفظ وتطبيق إعدادات الموقع...');
-    let updatedObj: SiteSettings = { ...siteSettings };
-    setSiteSettings((prev) => {
-      updatedObj = { ...prev, ...updates };
-      return updatedObj;
-    });
+    
+    // Compute new settings state synchronously
+    const newSettings: SiteSettings = { ...siteSettings, ...updates };
+    setSiteSettings(newSettings);
+    localStorage.setItem('ELITE_TURKEY_SETTINGS', JSON.stringify(newSettings));
 
     const client = getSupabaseClient();
     if (client) {
       try {
         const { error } = await client.from('site_settings').upsert({
           id: 'primary',
-          name_ar: updatedObj.nameAr,
-          name_en: updatedObj.nameEn,
-          slogan_ar: updatedObj.sloganAr,
-          logo_type: updatedObj.logoType,
-          logo_icon: updatedObj.logoIcon,
-          logo_image_url: updatedObj.logoImageUrl,
-          tursab_license: updatedObj.tursabLicense,
-          headquarters: updatedObj.headquarters,
+          name_ar: newSettings.nameAr,
+          name_en: newSettings.nameEn,
+          slogan_ar: newSettings.sloganAr,
+          logo_type: newSettings.logoType,
+          logo_icon: newSettings.logoIcon,
+          logo_image_url: newSettings.logoImageUrl,
+          tursab_license: newSettings.tursabLicense,
+          headquarters: newSettings.headquarters,
 
-          hero_background_image: updatedObj.heroBackgroundImage,
-          hero_background_opacity: updatedObj.heroBackgroundOpacity,
-          hero_badge_text: updatedObj.heroBadgeText,
-          hero_badge_visible: updatedObj.heroBadgeVisible,
-          hero_headline: updatedObj.heroHeadline,
-          hero_subtitle: updatedObj.heroSubtitle,
-          hero_primary_cta_text: updatedObj.heroPrimaryCtaText,
-          hero_primary_cta_custom_url: updatedObj.heroPrimaryCtaCustomUrl,
-          hero_primary_cta_visible: updatedObj.heroPrimaryCtaVisible,
-          hero_secondary_cta_text: updatedObj.heroSecondaryCtaText,
-          hero_secondary_cta_link: updatedObj.heroSecondaryCtaLink,
-          hero_secondary_cta_visible: updatedObj.heroSecondaryCtaVisible,
-          hero_trust_text_1: updatedObj.heroTrustText1,
-          hero_trust_text_2: updatedObj.heroTrustText2,
-          hero_trust_text_3: updatedObj.heroTrustText3,
-          hero_trust_bar_visible: updatedObj.heroTrustBarVisible,
+          hero_background_image: newSettings.heroBackgroundImage,
+          hero_background_opacity: newSettings.heroBackgroundOpacity,
+          hero_badge_text: newSettings.heroBadgeText,
+          hero_badge_visible: newSettings.heroBadgeVisible,
+          hero_headline: newSettings.heroHeadline,
+          hero_subtitle: newSettings.heroSubtitle,
+          hero_primary_cta_text: newSettings.heroPrimaryCtaText,
+          hero_primary_cta_custom_url: newSettings.heroPrimaryCtaCustomUrl,
+          hero_primary_cta_visible: newSettings.heroPrimaryCtaVisible,
+          hero_secondary_cta_text: newSettings.heroSecondaryCtaText,
+          hero_secondary_cta_link: newSettings.heroSecondaryCtaLink,
+          hero_secondary_cta_visible: newSettings.heroSecondaryCtaVisible,
+          hero_trust_text_1: newSettings.heroTrustText1,
+          hero_trust_text_2: newSettings.heroTrustText2,
+          hero_trust_text_3: newSettings.heroTrustText3,
+          hero_trust_bar_visible: newSettings.heroTrustBarVisible,
 
-          contact_badge_text: updatedObj.contactBadgeText,
-          contact_badge_visible: updatedObj.contactBadgeVisible,
-          contact_title: updatedObj.contactTitle,
-          contact_subtitle: updatedObj.contactSubtitle,
-          contact_whats_app_number: updatedObj.contactWhatsAppNumber,
-          contact_whats_app_default_message: updatedObj.contactWhatsAppDefaultMessage,
-          contact_whats_app_title: updatedObj.contactWhatsAppTitle,
-          contact_whats_app_badge: updatedObj.contactWhatsAppBadge,
-          contact_whats_app_description: updatedObj.contactWhatsAppDescription,
-          contact_whats_app_button_text: updatedObj.contactWhatsAppButtonText,
-          contact_whats_app_visible: updatedObj.contactWhatsAppVisible,
-          contact_trust_bar_visible: updatedObj.contactTrustBarVisible,
-          contact_license_text: updatedObj.contactLicenseText,
-          contact_support_hours: updatedObj.contactSupportHours,
-          contact_headquarters_text: updatedObj.contactHeadquartersText,
+          contact_badge_text: newSettings.contactBadgeText,
+          contact_badge_visible: newSettings.contactBadgeVisible,
+          contact_title: newSettings.contactTitle,
+          contact_subtitle: newSettings.contactSubtitle,
+          contact_whats_app_number: newSettings.contactWhatsAppNumber,
+          contact_whats_app_default_message: newSettings.contactWhatsAppDefaultMessage,
+          contact_whats_app_title: newSettings.contactWhatsAppTitle,
+          contact_whats_app_badge: newSettings.contactWhatsAppBadge,
+          contact_whats_app_description: newSettings.contactWhatsAppDescription,
+          contact_whats_app_button_text: newSettings.contactWhatsAppButtonText,
+          contact_whats_app_visible: newSettings.contactWhatsAppVisible,
+          contact_trust_bar_visible: newSettings.contactTrustBarVisible,
+          contact_license_text: newSettings.contactLicenseText,
+          contact_support_hours: newSettings.contactSupportHours,
+          contact_headquarters_text: newSettings.contactHeadquartersText,
 
           updated_at: new Date().toISOString(),
         });
 
         if (error) {
           console.error('Supabase site_settings upsert error:', error);
+          showToast('تنبيه: تعذر إرسال بضع الحقول إلى Supabase، تأكد من تشغيل سكربت SQL الجداول.', 'error');
         }
       } catch (e) {
         console.warn('Supabase site_settings upsert skipped:', e);
