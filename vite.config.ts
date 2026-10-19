@@ -5,7 +5,7 @@ import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
   return {
-    base: './', // Relative base path ensures scripts load on GitHub Pages subpaths (/profile/) and custom domain
+    base: '/', // Base path '/' for custom domain abdullahinturkey.com
     plugins: [react(), tailwindcss()],
     build: {
       target: 'es2020',
@@ -13,7 +13,7 @@ export default defineConfig(() => {
     },
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, '.'),
+        '@': path.resolve(process.cwd(), '.'),
       },
     },
     server: {
