@@ -42,7 +42,7 @@ export const AdminLogin: React.FC = () => {
             لوحة الإدارة والتحكم الملكية
           </h2>
           <p className="text-xs text-slate-400 mt-1 font-mono">
-            ELITE TURKEY • SINGLE ADMIN PORTAL
+            ABDULLAH IN TURKEY • ADMIN PORTAL
           </p>
         </div>
 
@@ -62,7 +62,7 @@ export const AdminLogin: React.FC = () => {
                 type="email"
                 required
                 dir="ltr"
-                placeholder="admin@eliteturkey.com"
+                placeholder="3lishops@gmail.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full rounded-xl border border-amber-400/25 bg-slate-950/70 px-4 py-3 pl-10 text-xs text-slate-100 placeholder:text-slate-500 focus:border-amber-400 focus:outline-none"

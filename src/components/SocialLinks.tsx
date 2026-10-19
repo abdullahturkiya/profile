@@ -54,7 +54,7 @@ export const SocialLinks: React.FC = () => {
       <div className="flex items-center gap-2 mb-4">
         <span className="h-[1px] w-10 bg-gradient-to-r from-transparent to-amber-400/40" />
         <span className="text-xs uppercase tracking-widest text-amber-300/80 font-medium">
-          قنوات التواصل الرسمية لدار النخبة
+          قنوات التواصل الرسمية الخاصة بنا
         </span>
         <span className="h-[1px] w-10 bg-gradient-to-l from-transparent to-amber-400/40" />
       </div>

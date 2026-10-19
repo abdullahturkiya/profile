@@ -158,29 +158,29 @@ export const AdminDashboard: React.FC = () => {
 
   // Branding & Hero Form State
   const [brandingForm, setBrandingForm] = useState({
-    nameAr: siteSettings.nameAr || 'دار النخبة للسياحة الفاخرة',
-    nameEn: siteSettings.nameEn || 'ELITE TURKEY VIP LUXURY TRAVEL',
-    sloganAr: siteSettings.sloganAr || 'خدمات كونسيرج سياحي فئة خمس نجوم في تركيا',
+    nameAr: siteSettings.nameAr || 'عبد الله في تركيا',
+    nameEn: siteSettings.nameEn || 'Abdullah in Turkey',
+    sloganAr: siteSettings.sloganAr || 'للخدمات السياحية والعقارية في تركيا',
     logoType: siteSettings.logoType || 'icon',
     logoIcon: siteSettings.logoIcon || 'crown',
     logoImageUrl: siteSettings.logoImageUrl || '',
     tursabLicense: siteSettings.tursabLicense || 'TÜRSAB - 14920 (فئة أ)',
-    headquarters: siteSettings.headquarters || 'Zorlu Center, Beşiktaş, Istanbul, Turkey',
-    heroBackgroundImage: siteSettings.heroBackgroundImage || 'https://images.unsplash.com/photo-1527838832700-5059252407fa?auto=format&fit=crop&w=1920&q=85',
+    headquarters: siteSettings.headquarters || 'Istanbul, Turkey',
+    heroBackgroundImage: siteSettings.heroBackgroundImage || 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1920&q=85',
     heroBackgroundOpacity: siteSettings.heroBackgroundOpacity ?? 0.38,
-    heroBadgeText: siteSettings.heroBadgeText || 'خدمات كونسيرج سياحي فئة خمس نجوم في تركيا',
+    heroBadgeText: siteSettings.heroBadgeText || 'للخدمات السياحية والعقارية في تركيا',
     heroBadgeVisible: siteSettings.heroBadgeVisible !== false,
-    heroHeadline: siteSettings.heroHeadline || 'بوابتك الاستثنائية لأرقى رحلات النخبة واليخوت الملكية في تركيا',
-    heroSubtitle: siteSettings.heroSubtitle || 'نصمم رحلاتك الخاصة في إسطنبول، كابادوكيا، طرابزون وأنطاليا بأعلى درجات الرفاهية والخصوصية التامة، مع أسطول سيارات مايباخ VIP ويخوت البوسفور الفارهة.',
-    heroPrimaryCtaText: siteSettings.heroPrimaryCtaText || 'احجز رحلتك الخاصة الآن عبر واتساب',
+    heroHeadline: siteSettings.heroHeadline || 'بساعدك في الخدمات السياحية والعقارية في تركيا',
+    heroSubtitle: siteSettings.heroSubtitle || 'المهندس عبدالله - بساعدك في كل ما يخص الخدمات السياحية والعقارية، من حجز الفنادق وتنظيم الرحلات والبرامج السياحية، لحد مساعدتك في اختيار العقار المناسب والاستثمار في تركيا',
+    heroPrimaryCtaText: siteSettings.heroPrimaryCtaText || 'تواصل معي عبر الواتساب',
     heroPrimaryCtaCustomUrl: siteSettings.heroPrimaryCtaCustomUrl || '',
     heroPrimaryCtaVisible: siteSettings.heroPrimaryCtaVisible !== false,
-    heroSecondaryCtaText: siteSettings.heroSecondaryCtaText || 'استكشف باقات VIP المتاحة',
+    heroSecondaryCtaText: siteSettings.heroSecondaryCtaText || 'استكشف باقات وخدمات VIP',
     heroSecondaryCtaLink: siteSettings.heroSecondaryCtaLink || '#services',
     heroSecondaryCtaVisible: siteSettings.heroSecondaryCtaVisible !== false,
     heroTrustText1: siteSettings.heroTrustText1 || 'TÜRSAB - 14920 (فئة أ)',
-    heroTrustText2: siteSettings.heroTrustText2 || 'Zorlu Center, Beşiktaş, Istanbul',
-    heroTrustText3: siteSettings.heroTrustText3 || 'كونسيرج متاح 24/7',
+    heroTrustText2: siteSettings.heroTrustText2 || 'Istanbul',
+    heroTrustText3: siteSettings.heroTrustText3 || 'متاح 24/7',
     heroTrustBarVisible: siteSettings.heroTrustBarVisible !== false,
   });
   const [brandingSaved, setBrandingSaved] = useState(false);
@@ -188,70 +188,70 @@ export const AdminDashboard: React.FC = () => {
   // Sync brandingForm when siteSettings updates
   useEffect(() => {
     setBrandingForm({
-      nameAr: siteSettings.nameAr || 'دار النخبة للسياحة الفاخرة',
-      nameEn: siteSettings.nameEn || 'ELITE TURKEY VIP LUXURY TRAVEL',
-      sloganAr: siteSettings.sloganAr || 'خدمات كونسيرج سياحي فئة خمس نجوم في تركيا',
+      nameAr: siteSettings.nameAr || 'عبد الله في تركيا',
+      nameEn: siteSettings.nameEn || 'Abdullah in Turkey',
+      sloganAr: siteSettings.sloganAr || 'للخدمات السياحية والعقارية في تركيا',
       logoType: siteSettings.logoType || 'icon',
       logoIcon: siteSettings.logoIcon || 'crown',
       logoImageUrl: siteSettings.logoImageUrl || '',
       tursabLicense: siteSettings.tursabLicense || 'TÜRSAB - 14920 (فئة أ)',
-      headquarters: siteSettings.headquarters || 'Zorlu Center, Beşiktaş, Istanbul, Turkey',
-      heroBackgroundImage: siteSettings.heroBackgroundImage || 'https://images.unsplash.com/photo-1527838832700-5059252407fa?auto=format&fit=crop&w=1920&q=85',
+      headquarters: siteSettings.headquarters || 'Istanbul, Turkey',
+      heroBackgroundImage: siteSettings.heroBackgroundImage || 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1920&q=85',
       heroBackgroundOpacity: siteSettings.heroBackgroundOpacity ?? 0.38,
-      heroBadgeText: siteSettings.heroBadgeText || 'خدمات كونسيرج سياحي فئة خمس نجوم في تركيا',
+      heroBadgeText: siteSettings.heroBadgeText || 'للخدمات السياحية والعقارية في تركيا',
       heroBadgeVisible: siteSettings.heroBadgeVisible !== false,
-      heroHeadline: siteSettings.heroHeadline || 'بوابتك الاستثنائية لأرقى رحلات النخبة واليخوت الملكية في تركيا',
-      heroSubtitle: siteSettings.heroSubtitle || 'نصمم رحلاتك الخاصة في إسطنبول، كابادوكيا، طرابزون وأنطاليا بأعلى درجات الرفاهية والخصوصية التامة، مع أسطول سيارات مايباخ VIP ويخوت البوسفور الفارهة.',
-      heroPrimaryCtaText: siteSettings.heroPrimaryCtaText || 'احجز رحلتك الخاصة الآن عبر واتساب',
+      heroHeadline: siteSettings.heroHeadline || 'بساعدك في الخدمات السياحية والعقارية في تركيا',
+      heroSubtitle: siteSettings.heroSubtitle || 'المهندس عبدالله - بساعدك في كل ما يخص الخدمات السياحية والعقارية، من حجز الفنادق وتنظيم الرحلات والبرامج السياحية، لحد مساعدتك في اختيار العقار المناسب والاستثمار في تركيا',
+      heroPrimaryCtaText: siteSettings.heroPrimaryCtaText || 'تواصل معي عبر الواتساب',
       heroPrimaryCtaCustomUrl: siteSettings.heroPrimaryCtaCustomUrl || '',
       heroPrimaryCtaVisible: siteSettings.heroPrimaryCtaVisible !== false,
-      heroSecondaryCtaText: siteSettings.heroSecondaryCtaText || 'استكشف باقات VIP المتاحة',
+      heroSecondaryCtaText: siteSettings.heroSecondaryCtaText || 'استكشف باقات وخدمات VIP',
       heroSecondaryCtaLink: siteSettings.heroSecondaryCtaLink || '#services',
       heroSecondaryCtaVisible: siteSettings.heroSecondaryCtaVisible !== false,
       heroTrustText1: siteSettings.heroTrustText1 || 'TÜRSAB - 14920 (فئة أ)',
-      heroTrustText2: siteSettings.heroTrustText2 || 'Zorlu Center, Beşiktaş, Istanbul',
-      heroTrustText3: siteSettings.heroTrustText3 || 'كونسيرج متاح 24/7',
+      heroTrustText2: siteSettings.heroTrustText2 || 'Istanbul',
+      heroTrustText3: siteSettings.heroTrustText3 || 'متاح 24/7',
       heroTrustBarVisible: siteSettings.heroTrustBarVisible !== false,
     });
   }, [siteSettings]);
 
   // Contact Container Customization State (All Elements)
   const [contactForm, setContactForm] = useState({
-    contactBadgeText: siteSettings.contactBadgeText || 'قنوات التواصل الرسمية لدار النخبة',
+    contactBadgeText: siteSettings.contactBadgeText || 'قنوات التواصل الرسمية الخاصة بنا',
     contactBadgeVisible: siteSettings.contactBadgeVisible !== false,
-    contactTitle: siteSettings.contactTitle || 'تواصل ملكي مباشر مع مستشارك السياحي 24/7',
+    contactTitle: siteSettings.contactTitle || 'تواصل مباشر مع مستشارك السياحي 24/7',
     contactSubtitle: siteSettings.contactSubtitle || 'اختر القناة المفضلة لديك وسيقوم فريق الكونسيرج بمتابعة كافة متطلبات رحلتك وتجهيز برنامجك الفاخر بدقة متناهية.',
     contactWhatsAppVisible: siteSettings.contactWhatsAppVisible !== false,
-    contactWhatsAppTitle: siteSettings.contactWhatsAppTitle || 'واتساب كونسيرج VIP المباشر',
+    contactWhatsAppTitle: siteSettings.contactWhatsAppTitle || 'واتساب تواصل مباشر',
     contactWhatsAppBadge: siteSettings.contactWhatsAppBadge || 'متواجد الآن',
-    contactWhatsAppDescription: siteSettings.contactWhatsAppDescription || 'حجوزات اليخوت، طائرات الهليكوبتر، سيارات مايباخ، وفلل البحر مع مستشارك الخاص.',
+    contactWhatsAppDescription: siteSettings.contactWhatsAppDescription || 'حجوزات الفنادق، الأكواخ، الجولات السياحية، وشراء العقارات في تركيا.',
     contactWhatsAppButtonText: siteSettings.contactWhatsAppButtonText || 'بدء المحادثة الفورية',
     contactWhatsAppNumber: siteSettings.contactWhatsAppNumber || primaryWhatsAppNumber || '905380000000',
-    contactWhatsAppDefaultMessage: siteSettings.contactWhatsAppDefaultMessage || 'مرحباً، أود التواصل مع مستشار كونسيرج دار النخبة للسياحة في تركيا.',
+    contactWhatsAppDefaultMessage: siteSettings.contactWhatsAppDefaultMessage || 'مرحباً، أود التواصل معكم من أجل الخدمات في تركيا.',
     contactTrustBarVisible: siteSettings.contactTrustBarVisible !== false,
     contactLicenseText: siteSettings.contactLicenseText || siteSettings.tursabLicense || 'TÜRSAB - 14920 (فئة أ)',
     contactSupportHours: siteSettings.contactSupportHours || 'خدمة عملاء وكونسيرج 24/7',
-    contactHeadquartersText: siteSettings.contactHeadquartersText || siteSettings.headquarters || 'Zorlu Center, Beşiktaş, Istanbul, Turkey',
+    contactHeadquartersText: siteSettings.contactHeadquartersText || siteSettings.headquarters || 'Istanbul, Turkey',
   });
   const [contactSaved, setContactSaved] = useState(false);
 
   useEffect(() => {
     setContactForm({
-      contactBadgeText: siteSettings.contactBadgeText || 'قنوات التواصل الرسمية لدار النخبة',
+      contactBadgeText: siteSettings.contactBadgeText || 'قنوات التواصل الرسمية الخاصة بنا',
       contactBadgeVisible: siteSettings.contactBadgeVisible !== false,
-      contactTitle: siteSettings.contactTitle || 'تواصل ملكي مباشر مع مستشارك السياحي 24/7',
+      contactTitle: siteSettings.contactTitle || 'تواصل مباشر مع مستشارك السياحي 24/7',
       contactSubtitle: siteSettings.contactSubtitle || 'اختر القناة المفضلة لديك وسيقوم فريق الكونسيرج بمتابعة كافة متطلبات رحلتك وتجهيز برنامجك الفاخر بدقة متناهية.',
       contactWhatsAppVisible: siteSettings.contactWhatsAppVisible !== false,
-      contactWhatsAppTitle: siteSettings.contactWhatsAppTitle || 'واتساب كونسيرج VIP المباشر',
+      contactWhatsAppTitle: siteSettings.contactWhatsAppTitle || 'واتساب تواصل مباشر',
       contactWhatsAppBadge: siteSettings.contactWhatsAppBadge || 'متواجد الآن',
-      contactWhatsAppDescription: siteSettings.contactWhatsAppDescription || 'حجوزات اليخوت، طائرات الهليكوبتر، سيارات مايباخ، وفلل البحر مع مستشارك الخاص.',
+      contactWhatsAppDescription: siteSettings.contactWhatsAppDescription || 'حجوزات الفنادق، الأكواخ، الجولات السياحية، وشراء العقارات في تركيا.',
       contactWhatsAppButtonText: siteSettings.contactWhatsAppButtonText || 'بدء المحادثة الفورية',
       contactWhatsAppNumber: siteSettings.contactWhatsAppNumber || primaryWhatsAppNumber || '905380000000',
-      contactWhatsAppDefaultMessage: siteSettings.contactWhatsAppDefaultMessage || 'مرحباً، أود التواصل مع مستشار كونسيرج دار النخبة للسياحة في تركيا.',
+      contactWhatsAppDefaultMessage: siteSettings.contactWhatsAppDefaultMessage || 'مرحباً، أود التواصل معكم من أجل الخدمات في تركيا.',
       contactTrustBarVisible: siteSettings.contactTrustBarVisible !== false,
       contactLicenseText: siteSettings.contactLicenseText || siteSettings.tursabLicense || 'TÜRSAB - 14920 (فئة أ)',
       contactSupportHours: siteSettings.contactSupportHours || 'خدمة عملاء وكونسيرج 24/7',
-      contactHeadquartersText: siteSettings.contactHeadquartersText || siteSettings.headquarters || 'Zorlu Center, Beşiktaş, Istanbul, Turkey',
+      contactHeadquartersText: siteSettings.contactHeadquartersText || siteSettings.headquarters || 'Istanbul, Turkey',
     });
   }, [siteSettings, primaryWhatsAppNumber]);
 
@@ -430,7 +430,7 @@ export const AdminDashboard: React.FC = () => {
     if (!res.success) {
       setPasswordChangeError(res.error || 'فشل تغيير كلمة المرور');
     } else {
-      setPasswordChangeSuccess('تم تحديث كلمة مرور المدير بنجاح في قاعدة البيانات.');
+      setPasswordChangeSuccess('تم تحديث كلمة مرور المدير بنجاح.');
       setOldPassword('');
       setNewPassword('');
       setConfirmPassword('');
@@ -446,7 +446,7 @@ export const AdminDashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#060A16] text-slate-100 text-right pb-24">
-      {/* Top Header Bar (Supabase button removed as requested) */}
+      {/* Top Header Bar */}
       <header className="sticky top-0 z-30 border-b border-amber-400/20 bg-slate-950/85 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
           
@@ -458,22 +458,22 @@ export const AdminDashboard: React.FC = () => {
                 {siteSettings.nameAr}
               </span>
               <span className="text-[10px] text-slate-400 font-mono">
-                {adminUser.email || 'لوحة تحكم الإدارة الملكية'}
+                {adminUser.email || 'لوحة تحكم الإدارة'}
               </span>
             </div>
           </div>
 
           {/* Quick Actions */}
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* Direct Instant Database Sync */}
+            {/* Direct Instant Content Refresh */}
             <button
               onClick={handleAdminSync}
               disabled={isAdminRefreshing}
               className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-emerald-500/10 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/20 transition-all"
-              title="تحديث ومزامنة البيانات مباشرة من Supabase"
+              title="تحديث ومزامنة المحتوى"
             >
               <RotateCw className={`h-3.5 w-3.5 text-emerald-400 ${isAdminRefreshing ? 'animate-spin' : ''}`} />
-              <span className="hidden sm:inline">مزامنة البيانات</span>
+              <span className="hidden sm:inline">تحديث المحتوى</span>
             </button>
 
             {/* View Site */}
@@ -1032,7 +1032,7 @@ export const AdminDashboard: React.FC = () => {
                 >
                   <div className="flex items-center gap-2.5">
                     <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0" />
-                    <span>تم حفظ وتحديث كافة عناصر وتخصيصات حاوية طرق التواصل وقاعدة البيانات بنجاح!</span>
+                    <span>تم حفظ وتحديث كافة عناصر وتخصيصات طرق التواصل بنجاح!</span>
                   </div>
                   <span className="text-xs text-emerald-400 font-mono">SAVED</span>
                 </motion.div>
@@ -1148,7 +1148,7 @@ export const AdminDashboard: React.FC = () => {
                       type="text"
                       value={contactForm.contactBadgeText}
                       onChange={(e) => setContactForm({ ...contactForm, contactBadgeText: e.target.value })}
-                      placeholder="قنوات التواصل الرسمية لدار النخبة"
+                      placeholder="قنوات التواصل الرسمية لعبدالله في تركيا"
                       className="w-full rounded-xl border border-amber-400/25 bg-slate-950 px-4 py-2.5 text-xs text-slate-100 focus:border-amber-400 focus:outline-none"
                     />
                   </div>
@@ -1287,7 +1287,7 @@ export const AdminDashboard: React.FC = () => {
                       type="text"
                       value={contactForm.contactWhatsAppDefaultMessage}
                       onChange={(e) => setContactForm({ ...contactForm, contactWhatsAppDefaultMessage: e.target.value })}
-                      placeholder="مرحباً، أود التواصل مع مستشار كونسيرج دار النخبة للسياحة في تركيا."
+                      placeholder="مرحباً، أود التواصل مع الأستاذ عبدالله بخصوص الخدمات السياحية والعقارية في تركيا."
                       className="w-full rounded-xl border border-emerald-500/30 bg-slate-950 px-4 py-2.5 text-xs text-slate-100 focus:border-emerald-400 focus:outline-none"
                     />
                   </div>
@@ -1368,7 +1368,7 @@ export const AdminDashboard: React.FC = () => {
                         <input
                           type="text"
                           required
-                          placeholder="مثال: إنستغرام دار النخبة الملكي"
+                          placeholder="مثال: إنستغرام عبدالله في تركيا"
                           value={newSocialLabel}
                           onChange={(e) => setNewSocialLabel(e.target.value)}
                           className="w-full rounded-xl border border-amber-400/25 bg-slate-900 px-3 py-2.5 text-xs text-slate-100"
@@ -1381,7 +1381,7 @@ export const AdminDashboard: React.FC = () => {
                           type="text"
                           required
                           dir="ltr"
-                          placeholder="https://instagram.com/eliteturkey_vip"
+                          placeholder="https://instagram.com/abdullahinturkey"
                           value={newSocialUrl}
                           onChange={(e) => setNewSocialUrl(e.target.value)}
                           className="w-full rounded-xl border border-amber-400/25 bg-slate-900 px-3 py-2.5 text-xs text-slate-100 text-left font-mono"
@@ -1677,7 +1677,7 @@ export const AdminDashboard: React.FC = () => {
                       5. أمان وحماية تسجيل الدخول لحساب المدير
                     </h4>
                     <p className="text-xs text-slate-400 mt-0.5">
-                      لوحة التحكم محمية تماماً ومقتصرة على حساب المدير المسجل في قاعدة البيانات.
+                      لوحة التحكم محمية تماماً ومقتصرة على حساب المدير المعتمد.
                     </p>
                   </div>
                 </div>
@@ -1687,7 +1687,7 @@ export const AdminDashboard: React.FC = () => {
                     <ShieldCheck className="h-6 w-6 text-amber-400 shrink-0" />
                     <div>
                       <span className="text-xs font-bold text-slate-200 block">
-                        حساب المدير المعتمد في قاعدة البيانات:
+                        حساب المدير المعتمد:
                       </span>
                       <span className="text-sm font-mono text-amber-300 font-bold">
                         {managerEmail}
@@ -1829,10 +1829,10 @@ export const AdminDashboard: React.FC = () => {
                 <SiteLogo size="md" />
                 <div className="flex flex-col text-right">
                   <span className="text-lg font-bold text-gold-gradient">
-                    {brandingForm.nameAr || 'دار النخبة للسياحة الفاخرة'}
+                    {brandingForm.nameAr || 'عبد الله في تركيا'}
                   </span>
                   <span className="text-[10px] tracking-widest text-slate-400 uppercase font-mono">
-                    {brandingForm.nameEn || 'ELITE TURKEY VIP LUXURY TRAVEL'}
+                    {brandingForm.nameEn || 'Abdullah in Turkey'}
                   </span>
                 </div>
               </div>
@@ -1848,7 +1848,7 @@ export const AdminDashboard: React.FC = () => {
                 <input
                   type="text"
                   required
-                  placeholder="دار النخبة للسياحة الفاخرة"
+                  placeholder="عبد الله في تركيا"
                   value={brandingForm.nameAr}
                   onChange={(e) => setBrandingForm({ ...brandingForm, nameAr: e.target.value })}
                   className="w-full rounded-xl border border-amber-400/25 bg-slate-950 px-4 py-3 text-sm text-slate-100 focus:border-amber-400 focus:outline-none"
@@ -1864,7 +1864,7 @@ export const AdminDashboard: React.FC = () => {
                   type="text"
                   required
                   dir="ltr"
-                  placeholder="ELITE TURKEY VIP LUXURY TRAVEL"
+                  placeholder="Abdullah in Turkey"
                   value={brandingForm.nameEn}
                   onChange={(e) => setBrandingForm({ ...brandingForm, nameEn: e.target.value })}
                   className="w-full rounded-xl border border-amber-400/25 bg-slate-950 px-4 py-3 text-sm text-slate-100 font-mono text-left focus:border-amber-400 focus:outline-none"
@@ -2087,7 +2087,7 @@ export const AdminDashboard: React.FC = () => {
 
                 {/* Headline preview */}
                 <h2 className="text-xl sm:text-3xl font-extrabold text-gold-gradient max-w-2xl mx-auto mb-3 leading-tight">
-                  {brandingForm.heroHeadline || 'بوابتك الاستثنائية لأرقى رحلات النخبة واليخوت الملكية في تركيا'}
+                  {brandingForm.heroHeadline || 'بساعدك في الخدمات السياحية والعقارية في تركيا'}
                 </h2>
 
                 {/* Subtitle preview */}
@@ -2264,7 +2264,7 @@ export const AdminDashboard: React.FC = () => {
                     </div>
                     <div>
                       <h4 className="text-base sm:text-lg font-bold text-slate-100">
-                        شارة النخبة العلوية المضيئة (Hero Badge)
+                        الشارة العلوية المضيئة (Hero Badge)
                       </h4>
                       <p className="text-xs text-slate-400">
                         الشارة المتحركة ذات النقطة النابضة أعلى العنوان الرئيسي.

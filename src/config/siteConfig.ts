@@ -21,13 +21,13 @@ export interface ServiceTeaser {
 export const SITE_CONFIG = {
   // اسم الشركة والعلامة التجارية
   company: {
-    nameAr: "دار النخبة للسياحة الفاخرة",
-    nameEn: "ELITE TURKEY VIP LUXURY TRAVEL",
-    sloganAr: "سوف ننطلق قريباً • تجربة سياحية بمفهوم جديد",
-    subSloganAr: "بوابتكم الخاصة لأرقى الجولات السياحية، اليخوت الملكية، والخدمات الخاصة في تركيا",
+    nameAr: "عبد الله في تركيا",
+    nameEn: "Abdullah in Turkey",
+    sloganAr: "للخدمات السياحية والعقارية في تركيا",
+    subSloganAr: "بوابتكم الخاصة للخدمات السياحية والعقارية والبرامج الفاخرة في تركيا",
     foundedYear: "2018",
     tursabLicenseNumber: "TÜRSAB - 14920 (فئة أ)",
-    headquarters: "إسطنبول - نيشانتاشي / زورلو سنتر",
+    headquarters: "إسطنبول - تركيا",
   },
 
   // تاريخ ووقت الإطلاق الرسمي المستهدف (السنة، الشهر - 1، اليوم، الساعة، الدقيقة)
@@ -39,22 +39,22 @@ export const SITE_CONFIG = {
     // رقم الواتساب مع المفتاح الدولي بدون إشارات (+ أو 00)
     whatsappNumber: "905380000000",
     displayPhone: "+90 (538) 000 0000",
-    email: "vip@eliteturkeyluxury.com",
+    email: "contact@abdullahinturkey.com",
     officeAddress: "Zorlu Center, Levazım, Beşiktaş, Istanbul, Turkey",
-    workingHours: "خدمة كونسيرج على مدار الساعة 24/7",
+    workingHours: "خدمة كونسيرج واستشارات على مدار الساعة 24/7",
     
     // نص الرسالة الافتراضية عند فتح محادثة الواتساب
-    defaultWhatsAppMessage: "مرحباً، أود الاستفسار عن حجز برنامج سياحي VIP في تركيا عبر بوابتكم الفاخرة.",
+    defaultWhatsAppMessage: "مرحباً، أود الاستفسار عن الخدمات السياحية والعقارية في تركيا عبر موقعكم.",
   },
 
   // روابط وسائل التواصل الاجتماعي
   socialMedia: {
     whatsapp: "https://wa.me/905380000000",
-    instagram: "https://instagram.com/eliteturkey_vip",
-    telegram: "https://t.me/eliteturkeyvip",
-    tiktok: "https://tiktok.com/@eliteturkey_vip",
-    facebook: "https://facebook.com/eliteturkeyvip",
-    youtube: "https://youtube.com/@eliteturkeyvip",
+    instagram: "https://instagram.com/abdullahinturkey",
+    telegram: "https://t.me/abdullahinturkey",
+    tiktok: "https://tiktok.com/@abdullahinturkey",
+    facebook: "https://facebook.com/abdullahinturkey",
+    youtube: "https://youtube.com/@abdullahinturkey",
   },
 
   // خدمات VIP الحصرية التي سيتم تقديمها
@@ -88,7 +88,7 @@ export const SITE_CONFIG = {
         "طيران داخلي خاص أو مقاعد درجة أولى VIP"
       ],
       destination: "كابادوكيا & أنطاليا",
-      badge: "الأكثر طلباً للنخبة",
+      badge: "الأكثر طلباً",
       suggestedMessage: "مرحباً، أرغب بالاستفسار عن برامج كابادوكيا الفاخرة والمناطيد الخاصة وفلل أنطاليا.",
     },
     {

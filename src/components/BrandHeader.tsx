@@ -46,7 +46,7 @@ export const BrandHeader: React.FC<BrandHeaderProps> = ({ onOpenInquiry }) => {
             href="#standards"
             className="hover:text-amber-300 transition-colors whitespace-nowrap shrink-0"
           >
-            معايير النخبة
+            معايير الضيافة الملكية
           </a>
           <a
             href="#contact"

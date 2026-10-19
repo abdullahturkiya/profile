@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
-import { Crown, Sparkles, Database, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { Crown, Sparkles, Compass, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { ThemeMode } from '../types';
 
 interface RoyalLuxurySplashLoaderProps {
@@ -124,7 +124,7 @@ export const RoyalLuxurySplashLoader: React.FC<RoyalLuxurySplashLoaderProps> = (
         >
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-300 text-[10px] sm:text-xs font-mono tracking-widest uppercase">
             <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
-            <span>بوابة النخبة للسياحة والعقارات</span>
+            <span>عبد الله في تركيا للخدمات السياحية والعقارية</span>
           </div>
 
           <h1 
@@ -143,7 +143,7 @@ export const RoyalLuxurySplashLoader: React.FC<RoyalLuxurySplashLoaderProps> = (
           </p>
         </motion.div>
 
-        {/* 3. Real Live Database Progress Section */}
+        {/* 3. Luxury Loading Progress Section */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -160,10 +160,10 @@ export const RoyalLuxurySplashLoader: React.FC<RoyalLuxurySplashLoaderProps> = (
             />
           </div>
 
-          {/* Dynamic Stage Text (Real Database Activity) */}
+          {/* Dynamic Stage Text (Customer Facing) */}
           <div className="flex items-center justify-between text-xs px-1">
             <div className="flex items-center gap-2 text-amber-200/90 font-medium">
-              <Database className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+              <Compass className="w-3.5 h-3.5 text-amber-400 animate-spin" />
               <span>{stageText}{dots}</span>
             </div>
             <span className="font-mono text-xs text-amber-400 font-bold">
@@ -171,10 +171,10 @@ export const RoyalLuxurySplashLoader: React.FC<RoyalLuxurySplashLoaderProps> = (
             </span>
           </div>
 
-          {/* Connection Security Badge */}
-          <div className="pt-2 flex items-center justify-center gap-2 text-[10px] text-slate-500 font-mono">
+          {/* Trust Badge */}
+          <div className="pt-2 flex items-center justify-center gap-2 text-[10px] text-slate-400 font-mono">
             <CheckCircle2 className="w-3 h-3 text-emerald-400/80" />
-            <span>اتصال مباشر ومحدث سحابياً مع Supabase</span>
+            <span>خدمة كونسيرج معتمدة واستجابة فورية 24/7</span>
           </div>
         </motion.div>
 

@@ -25,7 +25,7 @@ export const TrustPillars: React.FC = () => {
             THE ROYAL STANDARD
           </span>
           <h3 className="text-xl sm:text-2xl font-bold text-slate-100 mt-1">
-            لماذا يختار ضيوف النخبة دارنا السياحية؟
+            لماذا يختار عملاؤنا خدمات عبدالله في تركيا؟
           </h3>
         </div>
 

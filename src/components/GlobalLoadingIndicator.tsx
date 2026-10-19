@@ -11,7 +11,7 @@ interface GlobalLoadingIndicatorProps {
 
 export const GlobalLoadingIndicator: React.FC<GlobalLoadingIndicatorProps> = ({
   isLoading,
-  loadingText = 'جاري مزامنة ومعالجة البيانات...',
+  loadingText = 'جاري التحميل...',
   theme,
 }) => {
   return (

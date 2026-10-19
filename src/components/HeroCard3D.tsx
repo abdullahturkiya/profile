@@ -102,7 +102,7 @@ export const HeroCard3D: React.FC<HeroCard3DProps> = ({ onOpenInquiry }) => {
 
           {/* Majestic Metallic-Gold Headline */}
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold leading-[1.25] tracking-tight text-gold-gradient max-w-3xl mb-4 text-balance">
-            بوابة الفخامة الأولى لضيوف النخبة في تركيا
+            بوابتكم لخدمات السياحة والعقارات الفاخرة في تركيا
           </h1>
 
           {/* Luxury Subtitle & VIP Availability Guarantee */}

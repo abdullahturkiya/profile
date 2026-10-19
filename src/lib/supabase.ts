@@ -59,7 +59,7 @@ export function resetSupabaseClient(url: string, key: string) {
  * جاهز للنسخ في محرر SQL في Supabase
  */
 export const SUPABASE_SQL_SCHEMA = `-- ==============================================================================
--- دار النخبة للسياحة الفاخرة في تركيا | ELITE TURKEY VIP LUXURY TRAVEL
+-- عبد الله في تركيا | Abdullah in Turkey VIP Tourism & Real Estate
 -- سكربت قاعدة البيانات الكاملة في Supabase (شامل الجداول، الحقول، والمصادقة)
 -- ==============================================================================
 

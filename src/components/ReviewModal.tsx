@@ -87,7 +87,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ service, onClose }) =>
                 : 'border-amber-400/30 bg-amber-400/10 text-amber-300'
             }`}>
               <Sparkles className="h-3.5 w-3.5" />
-              <span>تقييمات وتجارب ضيوف النخبة</span>
+              <span>تقييمات وتجارب ضيوفنا الكرام</span>
             </div>
             <h3 className="text-2xl sm:text-3xl font-extrabold text-gold-gradient">
               {service.title}

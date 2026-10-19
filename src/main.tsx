@@ -34,10 +34,10 @@ class ErrorBoundary extends Component<Props, State> {
               👑
             </div>
             <h1 className="text-xl font-bold text-amber-200 mb-2">
-              بوابة تركيا الفاخرة | جاري إعادة التهيئة
+              عبد الله في تركيا | جاري إعادة التهيئة
             </h1>
             <p className="text-xs text-slate-400 leading-relaxed mb-6">
-              حدث تنبيه أمان بسيط في متصفحك أثناء معالجة البيانات، يمكنك الضغط على الزر أدناه لإعادة تشغيل المنصة فوراً.
+              حدث تنبيه بسيط في متصفحك، يمكنك الضغط على الزر أدناه لإعادة تشغيل المنصة فوراً بكل سهولة.
             </p>
             <button
               onClick={() => {
@@ -46,7 +46,7 @@ class ErrorBoundary extends Component<Props, State> {
               }}
               className="w-full rounded-xl py-3 px-6 font-bold text-slate-950 text-xs sm:text-sm bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500 hover:from-amber-200 hover:to-amber-400 shadow-[0_0_20px_rgba(212,175,55,0.3)] transition-all"
             >
-              إعادة تحميل المنصة وتحديث البيانات
+              إعادة تحميل المنصة
             </button>
           </div>
         </div>

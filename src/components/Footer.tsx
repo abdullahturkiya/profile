@@ -1,8 +1,11 @@
 import React from 'react';
 import { Crown, MapPin, Phone, Mail, Clock, ShieldCheck } from 'lucide-react';
 import { SITE_CONFIG } from '../config/siteConfig';
+import { useApp } from '../context/AppContext';
 
 export const Footer: React.FC = () => {
+  const { siteSettings } = useApp();
+
   return (
     <footer id="contact" className="w-full border-t border-amber-400/15 bg-[#03060d] text-slate-400 pt-16 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -18,16 +21,16 @@ export const Footer: React.FC = () => {
               </div>
               <div>
                 <span className="text-xl font-bold text-gold-gradient block">
-                  {SITE_CONFIG.company.nameAr}
+                  {siteSettings.nameAr || 'عبد الله في تركيا'}
                 </span>
                 <span className="text-xs font-mono text-slate-500 tracking-wider">
-                  {SITE_CONFIG.company.nameEn}
+                  {siteSettings.nameEn || 'Abdullah in Turkey'}
                 </span>
               </div>
             </div>
 
             <p className="text-xs sm:text-sm text-slate-400 max-w-md leading-relaxed">
-              {SITE_CONFIG.company.subSloganAr}. متخصصون في تصميم برامج السياحة الراقية للنخبة والعائلات الراغبة في الخصوصية والتميز.
+              {siteSettings.sloganAr || 'للخدمات السياحية والعقارية في تركيا'}. متخصصون في تقديم أرقى الخدمات السياحية والعقارية والجولات الخاصة للعائلات الراغبة في الراحة والخصوصية والتميز.
             </p>
 
             <div className="flex items-center gap-2 pt-2 text-xs text-amber-300/90">
@@ -100,7 +103,7 @@ export const Footer: React.FC = () => {
         {/* Bottom copyright line */}
         <div className="mt-12 pt-6 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 text-center sm:text-right">
           <p>
-            جميع الحقوق محفوظة © {new Date().getFullYear()} {SITE_CONFIG.company.nameAr}.
+            جميع الحقوق محفوظة © {new Date().getFullYear()} {siteSettings.nameAr || 'عبد الله في تركيا'}.
           </p>
           <div className="flex items-center gap-4 text-slate-400">
             <span>الصفحة التمهيدية الرسمية</span>

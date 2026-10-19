@@ -53,13 +53,13 @@ export const LuxurySocialChannels: React.FC = () => {
       case 'instagram':
         return 'تغطيات يومية حصرية لليخوت الملكية والفنادق الفاخرة في تركيا.';
       case 'telegram':
-        return 'عروض حصرية وخاصة لأعضاء نادي النخبة قبل الإعلان عنها.';
+        return 'عروض حصرية وخاصة للمتابعين قبل الإعلان عنها.';
       case 'tiktok':
         return 'جولات مصورة ومقاطع فيديو من رحلات ضيوفنا في إسطنبول وطرابزون.';
       case 'facebook':
-        return 'الصفحة الرسمية المعتمدة لدار النخبة للسياحة والسفر.';
+        return 'الصفحة الرسمية المعتمدة لعبدالله في تركيا للخدمات السياحية والعقارية.';
       case 'linkedin':
-        return 'الملف المهني لدار النخبة والشراكات الفندقية الملكية.';
+        return 'الملف المهني والشراكات الفندقية والعقارية في تركيا.';
       case 'x':
         return 'آخر التحديثات والأخبار السياحية الفاخرة في تركيا.';
       case 'snapchat':
@@ -72,7 +72,7 @@ export const LuxurySocialChannels: React.FC = () => {
 
   const activeLinks = socialLinks.filter((l) => l.isActive);
   const targetWhatsAppNumber = siteSettings.contactWhatsAppNumber || primaryWhatsAppNumber;
-  const targetWhatsAppMessage = siteSettings.contactWhatsAppDefaultMessage || 'مرحباً، أود التواصل مع مستشار كونسيرج دار النخبة للسياحة في تركيا.';
+  const targetWhatsAppMessage = siteSettings.contactWhatsAppDefaultMessage || 'مرحباً، أود التواصل معكم من أجل الخدمات السياحية والعقارية في تركيا.';
 
   return (
     <section id="contact" className="w-full max-w-6xl mx-auto px-4 sm:px-6 my-20 text-right">
@@ -95,7 +95,7 @@ export const LuxurySocialChannels: React.FC = () => {
                 : 'border-amber-400/40 bg-amber-400/10 text-amber-500'
             }`}>
               <Sparkles className="h-3.5 w-3.5" />
-              <span>{siteSettings.contactBadgeText || 'قنوات التواصل الرسمية لدار النخبة'}</span>
+              <span>{siteSettings.contactBadgeText || 'قنوات التواصل الرسمية الخاصة بنا'}</span>
             </div>
           )}
 

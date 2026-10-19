@@ -84,7 +84,7 @@ export const LandingPage: React.FC = () => {
             theme === 'light' ? 'text-slate-700' : 'text-slate-300'
           }`}>
             <a href="#hero" className="hover:text-amber-600 transition-colors whitespace-nowrap">الرئيسية</a>
-            <a href="#services" className="hover:text-amber-600 transition-colors whitespace-nowrap">باقات النخبة VIP</a>
+            <a href="#services" className="hover:text-amber-600 transition-colors whitespace-nowrap">الباقات والخدمات VIP</a>
             <a href="#standards" className="hover:text-amber-600 transition-colors whitespace-nowrap">معايير الضيافة الملكية</a>
             <a href="#contact" className="hover:text-amber-600 transition-colors whitespace-nowrap">التواصل والمكتب</a>
           </nav>
@@ -128,13 +128,13 @@ export const LandingPage: React.FC = () => {
               </AnimatePresence>
             </button>
 
-            {/* Direct Instant Database Live Refresh Button */}
+            {/* Direct Instant Content Refresh Button */}
             <button
               type="button"
               onClick={handleManualRefresh}
               disabled={isManualRefreshing}
-              title="تحديث واسترجاع البيانات مباشرة من قاعدة البيانات"
-              aria-label="مزامنة وتحديث البيانات"
+              title="تحديث المحتوى"
+              aria-label="تحديث المحتوى"
               className={`relative flex items-center justify-center h-8 w-8 sm:h-11 sm:w-11 rounded-lg sm:rounded-xl border transition-all duration-300 shrink-0 ${
                 theme === 'light'
                   ? 'border-amber-500/30 bg-white/95 text-amber-900 hover:bg-amber-50 hover:border-amber-500 shadow-[0_2px_10px_rgba(212,175,55,0.15)]'
@@ -237,7 +237,7 @@ export const LandingPage: React.FC = () => {
             transition={{ duration: 0.8, delay: 0.1 }}
             className="text-3xl sm:text-5xl md:text-6xl font-extrabold leading-[1.25] tracking-tight text-gold-gradient max-w-4xl mx-auto mb-6 text-balance"
           >
-            {siteSettings.heroHeadline || "بوابتك الاستثنائية لأرقى رحلات النخبة واليخوت الملكية في تركيا"}
+            {siteSettings.heroHeadline || "بساعدك في الخدمات السياحية والعقارية في تركيا"}
           </motion.h1>
 
           {/* Subtitle */}
@@ -336,7 +336,7 @@ export const LandingPage: React.FC = () => {
             OUR ROYAL PACKAGES & SERVICES
           </span>
           <h2 className="text-2xl sm:text-4xl font-extrabold text-gold-gradient mt-2 text-balance">
-            باقات النخبة والجولات السياحية الفاخرة
+            باقات وجولات عبدالله في تركيا الفاخرة
           </h2>
           <p className={`mt-3 text-xs sm:text-base max-w-2xl mx-auto px-2 ${
             theme === 'light' ? 'text-slate-600' : 'text-slate-300'

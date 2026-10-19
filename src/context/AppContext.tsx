@@ -128,9 +128,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Global Loading state
   const [isGlobalLoading, setIsGlobalLoading] = useState<boolean>(false);
-  const [globalLoadingText, setGlobalLoadingText] = useState<string>('جاري معالجة البيانات سحابياً...');
+  const [globalLoadingText, setGlobalLoadingText] = useState<string>('جاري حفظ التعديلات...');
 
-  const startGlobalLoading = (text = 'جاري المعالجة والمزامنة سحابياً...') => {
+  const startGlobalLoading = (text = 'جاري التحديث...') => {
     setGlobalLoadingText(text);
     setIsGlobalLoading(true);
   };
@@ -254,9 +254,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [isSupabaseConnected, setIsSupabaseConnected] = useState<boolean>(true);
 
-  // Real Database Direct Sync & Royal Splash Loading States
+  // Direct Sync & Royal Splash Loading States
   const [isInitialDataLoading, setIsInitialDataLoading] = useState<boolean>(true);
-  const [loadingStageText, setLoadingStageText] = useState<string>('جاري الاتصال الآمن بقاعدة البيانات الملكية...');
+  const [loadingStageText, setLoadingStageText] = useState<string>('مرحباً بكم، جاري تحضير تجربة سفركم الفاخرة...');
   const [loadingProgressPercent, setLoadingProgressPercent] = useState<number>(15);
 
   // Sync state to localStorage (offline cache backup)
@@ -294,11 +294,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
 
     try {
-      setLoadingStageText('جاري الاتصال الآمن بقاعدة البيانات الملكية...');
+      setLoadingStageText('جاري تجهيز برامجكم السياحية والعقارية الفاخرة...');
       setLoadingProgressPercent(20);
 
       // 1. Fetch site_settings directly from Supabase
-      setLoadingStageText('مزامنة بيانات الهوية وإعدادات الواجهة...');
+      setLoadingStageText('تحميل أحدث إعدادات وباقات عبدالله في تركيا...');
       setLoadingProgressPercent(35);
       const { data: setData, error: setErr } = await client
         .from('site_settings')
@@ -356,7 +356,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
 
       // 2. Fetch live services directly from Supabase
-      setLoadingStageText('استرجاع باقات الخدمات والجولات السياحية الحية...');
+      setLoadingStageText('تحميل أحدث الباقات والجولات والخدمات...');
       setLoadingProgressPercent(58);
       const { data: srvData, error: srvErr } = await client
         .from('services')
@@ -383,7 +383,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
 
       // 3. Fetch live reviews directly from Supabase
-      setLoadingStageText('مزامنة تقييمات الضيوف والخدمات المعتمدة...');
+      setLoadingStageText('عرض آراء وتجارب ضيوفنا الكرام...');
       setLoadingProgressPercent(74);
       const { data: revData, error: revErr } = await client.from('reviews').select('*');
       if (!revErr && revData && revData.length > 0) {
@@ -402,7 +402,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
 
       // 4. Fetch social links directly from Supabase
-      setLoadingStageText('مزامنة قنوات التواصل ومعايير الكونسيرج...');
+      setLoadingStageText('تجهيز قنوات التواصل المباشر مع المستشار...');
       setLoadingProgressPercent(86);
       const { data: socData, error: socErr } = await client.from('social_links').select('*');
       if (!socErr && socData && socData.length > 0) {
@@ -451,7 +451,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
 
       // 7. Finish loading smoothly
-      setLoadingStageText('اكتمل التجهيز الملكي بنجاح');
+      setLoadingStageText('أهلاً بكم في رحلتكم الاستثنائية');
       setLoadingProgressPercent(100);
       setIsSupabaseConnected(true);
 
@@ -460,16 +460,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setIsInitialDataLoading(false);
 
       if (isManual) {
-        showToast('تم استرجاع أحدث البيانات مباشرة من قاعدة البيانات بنجاح', 'success', 3000);
+        showToast('تم تحديث المحتوى بنجاح', 'success', 3000);
       }
     } catch (err) {
-      console.warn('Direct Supabase fetch warning:', err);
+      console.warn('Direct fetch warning:', err);
       setIsInitialDataLoading(false);
     }
   };
 
   const refreshDatabaseData = async () => {
-    startGlobalLoading('جاري تحديث واسترجاع أحدث البيانات مباشرة من قاعدة البيانات...');
+    startGlobalLoading('جاري تحديث المحتوى...');
     try {
       await fetchFreshDatabaseData(true);
     } finally {
@@ -622,14 +622,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
         if (error) {
           console.error('Supabase site_settings upsert error:', error);
-          showToast('تنبيه: تعذر إرسال بضع الحقول إلى Supabase، تأكد من تشغيل سكربت SQL الجداول.', 'error');
+          showToast('تنبيه: تعذر حفظ بعض التعديلات، يرجى المحاولة لاحقاً', 'error');
         }
       } catch (e) {
         console.warn('Supabase site_settings upsert skipped:', e);
       }
     }
     stopGlobalLoading();
-    showToast('تم حفظ وتحديث إعدادات هوية وواجهة الموقع بنجاح في قاعدة البيانات', 'success');
+    showToast('تم حفظ وتحديث إعدادات الموقع بنجاح', 'success');
   };
 
   // Standards Actions
@@ -653,18 +653,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
         if (error) {
           console.error('Supabase standards insert error:', error);
-          showToast('تنبيه: حدث خطأ أثناء إضافة المعيار في قاعدة البيانات', 'error');
+          showToast('تنبيه: تعذر إضافة معيار الضيافة', 'error');
         }
       } catch (e) {
         console.warn('Supabase standards insert skipped:', e);
       }
     }
     stopGlobalLoading();
-    showToast('تمت إضافة معيار الضيافة الملكية الجديد بنجاح في قاعدة البيانات', 'success');
+    showToast('تمت إضافة معيار الضيافة الجديد بنجاح', 'success');
   };
 
   const updateStandard = async (id: string, updates: Partial<HospitalityStandard>) => {
-    startGlobalLoading('جاري تحديث بيانات معيار الضيافة...');
+    startGlobalLoading('جاري تحديث معيار الضيافة...');
     setStandards((prev) => prev.map((s) => (s.id === id ? { ...s, ...updates } : s)));
 
     const client = getSupabaseClient();
@@ -673,14 +673,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const { error } = await client.from('hospitality_standards').update(updates).eq('id', id);
         if (error) {
           console.error('Supabase standards update error:', error);
-          showToast('تنبيه: حدث خطأ أثناء تحديث المعيار في قاعدة البيانات', 'error');
+          showToast('تنبيه: تعذر تحديث معيار الضيافة', 'error');
         }
       } catch (e) {
         console.warn('Supabase standards update skipped:', e);
       }
     }
     stopGlobalLoading();
-    showToast('تم تحديث بيانات المعيار بنجاح في قاعدة البيانات', 'success');
+    showToast('تم تحديث معيار الضيافة بنجاح', 'success');
   };
 
   const deleteStandard = async (id: string) => {
@@ -693,14 +693,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const { error } = await client.from('hospitality_standards').delete().eq('id', id);
         if (error) {
           console.error('Supabase standards delete error:', error);
-          showToast('تنبيه: حدث خطأ أثناء حذف المعيار من قاعدة البيانات', 'error');
+          showToast('تنبيه: تعذر إتمام حذف المعيار', 'error');
         }
       } catch (e) {
         console.warn('Supabase standards delete skipped:', e);
       }
     }
     stopGlobalLoading();
-    showToast('تم حذف معيار الضيافة بنجاح من قاعدة البيانات', 'info');
+    showToast('تم حذف معيار الضيافة بنجاح', 'info');
   };
 
   // Services actions
@@ -732,7 +732,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
         if (error) {
           console.error('Supabase insert service error:', error);
-          showToast(`تنبيه: حدث خطأ أثناء إضافة الخدمة في قاعدة البيانات (${error.message || ''})`, 'error');
+          showToast('تنبيه: تعذر إضافة الخدمة السياحية', 'error');
           stopGlobalLoading();
           return;
         }
@@ -741,7 +741,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
     }
     stopGlobalLoading();
-    showToast('تمت إضافة الخدمة السياحية الفاخرة بنجاح إلى القائمة وقاعدة البيانات', 'success');
+    showToast('تمت إضافة الخدمة السياحية بنجاح', 'success');
   };
 
   const updateService = async (id: string, updates: Partial<TourismService>) => {
@@ -775,7 +775,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
         if (error) {
           console.error('Supabase update service error:', error);
-          showToast(`تنبيه: تعذر حفظ التعديل في قاعدة البيانات (${error.message || ''})`, 'error');
+          showToast('تنبيه: تعذر حفظ التعديل على الخدمة', 'error');
           setServices(previousServices);
           stopGlobalLoading();
           return;
@@ -801,7 +801,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
             if (upsertErr) {
               console.error('Supabase upsert service fallback error:', upsertErr);
-              showToast(`تنبيه: تعذر إتمام حفظ الخدمة في قاعدة البيانات (${upsertErr.message || ''})`, 'error');
+              showToast('تنبيه: تعذر إتمام حفظ الخدمة', 'error');
               setServices(previousServices);
               stopGlobalLoading();
               return;
@@ -813,11 +813,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
     }
     stopGlobalLoading();
-    showToast('تم تحديث وحفظ تفاصيل الخدمة السياحية بنجاح في قاعدة البيانات', 'success');
+    showToast('تم حفظ وتحديث تفاصيل الخدمة بنجاح', 'success');
   };
 
   const deleteService = async (id: string) => {
-    startGlobalLoading('جاري حذف الخدمة من قاعدة البيانات...');
+    startGlobalLoading('جاري حذف الخدمة...');
     let previousServices: TourismService[] = [];
     let previousReviews: Review[] = [];
 
@@ -840,7 +840,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const { error } = await client.from('services').delete().eq('id', id);
         if (error) {
           console.error('Supabase delete service error:', error);
-          showToast(`تنبيه: تعذر حذف الخدمة من قاعدة البيانات (${error.message || ''})`, 'error');
+          showToast('تنبيه: تعذر حذف الخدمة السياحية', 'error');
           // Rollback state
           setServices(previousServices);
           setReviews(previousReviews);
@@ -852,7 +852,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
     }
     stopGlobalLoading();
-    showToast('تم حذف الخدمة السياحية بنجاح من قاعدة البيانات', 'info');
+    showToast('تم حذف الخدمة السياحية بنجاح', 'info');
   };
 
   // Reviews actions
@@ -892,7 +892,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
         if (error) {
           console.error('Supabase insert review error:', error);
-          showToast('تنبيه: حدث خطأ أثناء إرسال التقييم إلى قاعدة البيانات', 'error');
+          showToast('تنبيه: تعذر إرسال التقييم في الوقت الحالي', 'error');
         }
       } catch (err) {
         console.warn('Supabase insert review skipped', err);
@@ -912,14 +912,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const { error } = await client.from('reviews').update({ status: 'approved' }).eq('id', id);
         if (error) {
           console.error('Supabase approve review error:', error);
-          showToast('تنبيه: حدث خطأ أثناء اعتماد التقييم في قاعدة البيانات', 'error');
+          showToast('تنبيه: تعذر اعتماد التقييم', 'error');
         }
       } catch (err) {
         console.warn('Supabase approve review skipped', err);
       }
     }
     stopGlobalLoading();
-    showToast('تم اعتماد ونشر التقييم في الواجهة الرئيسية بنجاح في قاعدة البيانات', 'success');
+    showToast('تم اعتماد ونشر التقييم في الواجهة الرئيسية بنجاح', 'success');
   };
 
   const rejectReview = async (id: string) => {
@@ -932,14 +932,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const { error } = await client.from('reviews').update({ status: 'rejected' }).eq('id', id);
         if (error) {
           console.error('Supabase reject review error:', error);
-          showToast('تنبيه: حدث خطأ أثناء تعديل حالة التقييم في قاعدة البيانات', 'error');
+          showToast('تنبيه: تعذر تعديل حالة التقييم', 'error');
         }
       } catch (err) {
         console.warn('Supabase reject review skipped', err);
       }
     }
     stopGlobalLoading();
-    showToast('تم تغيير حالة التقييم إلى مرفوض في قاعدة البيانات', 'info');
+    showToast('تم تغيير حالة التقييم إلى مرفوض', 'info');
   };
 
   const deleteReview = async (id: string) => {
@@ -952,14 +952,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const { error } = await client.from('reviews').delete().eq('id', id);
         if (error) {
           console.error('Supabase delete review error:', error);
-          showToast('تنبيه: حدث خطأ أثناء حذف التقييم من قاعدة البيانات', 'error');
+          showToast('تنبيه: تعذر حذف التقييم', 'error');
         }
       } catch (err) {
         console.warn('Supabase delete review skipped', err);
       }
     }
     stopGlobalLoading();
-    showToast('تم حذف التقييم نهائياً بنجاح من قاعدة البيانات', 'info');
+    showToast('تم حذف التقييم بنجاح', 'info');
   };
 
   const getApprovedReviews = (serviceId: string): Review[] => {
@@ -998,18 +998,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const { error } = await client.from('social_links').update(mappedUpdates).eq('id', id);
         if (error) {
           console.error('Supabase update social link error:', error);
-          showToast('تنبيه: حدث خطأ أثناء تحديث قناة التواصل في قاعدة البيانات', 'error');
+          showToast('تنبيه: تعذر تحديث وسيلة التواصل', 'error');
         }
       } catch (err) {
         console.warn('Supabase update social link skipped', err);
       }
     }
     stopGlobalLoading();
-    showToast('تم تحديث تفاصيل قناة التواصل بنجاح في قاعدة البيانات', 'success');
+    showToast('تم تحديث وسيلة التواصل بنجاح', 'success');
   };
 
   const addSocialLink = async (linkData: Omit<SocialLink, 'id'>) => {
-    startGlobalLoading('جاري إضافة قناة التواصُل...');
+    startGlobalLoading('جاري إضافة وسيلة التواصل...');
     const newLink: SocialLink = {
       ...linkData,
       id: 'soc-' + Date.now(),
@@ -1032,18 +1032,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
         if (error) {
           console.error('Supabase add social link error:', error);
-          showToast('تنبيه: حدث خطأ أثناء إضافة قناة التواصل في قاعدة البيانات', 'error');
+          showToast('تنبيه: تعذر إضافة وسيلة التواصل', 'error');
         }
       } catch (err) {
         console.warn('Supabase add social link skipped', err);
       }
     }
     stopGlobalLoading();
-    showToast('تمت إضافة قناة التواصل الجديدة بنجاح في قاعدة البيانات', 'success');
+    showToast('تمت إضافة وسيلة التواصل بنجاح', 'success');
   };
 
   const deleteSocialLink = async (id: string) => {
-    startGlobalLoading('جاري إزالة القناة...');
+    startGlobalLoading('جاري إزالة وسيلة التواصل...');
     setSocialLinks((prev) => prev.filter((l) => l.id !== id));
 
     const client = getSupabaseClient();
@@ -1052,14 +1052,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const { error } = await client.from('social_links').delete().eq('id', id);
         if (error) {
           console.error('Supabase delete social link error:', error);
-          showToast('تنبيه: حدث خطأ أثناء حذف القناة من قاعدة البيانات', 'error');
+          showToast('تنبيه: تعذر إزالة وسيلة التواصل', 'error');
         }
       } catch (err) {
         console.warn('Supabase delete social link skipped', err);
       }
     }
     stopGlobalLoading();
-    showToast('تمت إزالة قناة التواصل بنجاح من قاعدة البيانات', 'info');
+    showToast('تمت إزالة وسيلة التواصل بنجاح', 'info');
   };
 
   const primaryWhatsAppNumber = (() => {
@@ -1091,7 +1091,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return { success: false, error: 'يرجى إدخال البريد الإلكتروني وكلمة المرور' };
     }
 
-    startGlobalLoading('جاري التحقق من بيانات الدخول مع قاعدة البيانات الملكية...');
+    startGlobalLoading('جاري التحقق من بيانات الدخول...');
 
     const client = getSupabaseClient();
     if (client) {
@@ -1107,12 +1107,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           if (dbAdmin.password === cleanPass || dbAdmin.password_hash === cleanPass) {
             setAdminUser({ email: dbAdmin.email, isAuthenticated: true, isDemo: false });
             stopGlobalLoading();
-            showToast('أهلاً بك! تم تسجيل الدخول بنجاح إلى لوحة التحكم الملكية', 'success');
+            showToast('أهلاً بك! تم تسجيل الدخول بنجاح إلى لوحة الإدارة', 'success');
             return { success: true };
           } else {
             stopGlobalLoading();
             showToast('كلمة المرور غير صحيحة لحساب المدير', 'error');
-            return { success: false, error: 'كلمة المرور غير صحيحة لحساب المدير في قاعدة البيانات' };
+            return { success: false, error: 'كلمة المرور غير صحيحة لحساب المدير' };
           }
         }
       } catch (e) {
@@ -1150,7 +1150,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     showToast('البريد الإلكتروني أو كلمة المرور غير صحيحة', 'error');
     return { 
       success: false, 
-      error: 'البريد الإلكتروني أو كلمة المرور غير صحيحة. يرجى التأكد من تسجيل الحساب في جدول admin_users في Supabase.' 
+      error: 'البريد الإلكتروني أو كلمة المرور غير صحيحة.' 
     };
   };
 
@@ -1160,7 +1160,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return { success: false, error: 'يجب أن تتكون كلمة المرور الجديدة من 6 أحرف على الأقل' };
     }
 
-    startGlobalLoading('جاري تحديث كلمة المرور سحابياً...');
+    startGlobalLoading('جاري تحديث كلمة المرور...');
     const client = getSupabaseClient();
     if (client && adminUser.email) {
       try {
