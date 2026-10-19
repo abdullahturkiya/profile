@@ -574,18 +574,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const client = getSupabaseClient();
     if (client) {
       try {
-        await client.from('hospitality_standards').insert({
+        const { error } = await client.from('hospitality_standards').insert({
           id: newStd.id,
           title: newStd.title,
           description: newStd.description,
           icon: newStd.icon,
         });
+
+        if (error) {
+          console.error('Supabase standards insert error:', error);
+          showToast('تنبيه: حدث خطأ أثناء إضافة المعيار في قاعدة البيانات', 'error');
+        }
       } catch (e) {
         console.warn('Supabase standards insert skipped:', e);
       }
     }
     stopGlobalLoading();
-    showToast('تمت إضافة معيار الضيافة الملكية الجديد بنجاح', 'success');
+    showToast('تمت إضافة معيار الضيافة الملكية الجديد بنجاح في قاعدة البيانات', 'success');
   };
 
   const updateStandard = async (id: string, updates: Partial<HospitalityStandard>) => {
@@ -595,13 +600,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const client = getSupabaseClient();
     if (client) {
       try {
-        await client.from('hospitality_standards').update(updates).eq('id', id);
+        const { error } = await client.from('hospitality_standards').update(updates).eq('id', id);
+        if (error) {
+          console.error('Supabase standards update error:', error);
+          showToast('تنبيه: حدث خطأ أثناء تحديث المعيار في قاعدة البيانات', 'error');
+        }
       } catch (e) {
         console.warn('Supabase standards update skipped:', e);
       }
     }
     stopGlobalLoading();
-    showToast('تم تحديث بيانات المعيار بنجاح', 'success');
+    showToast('تم تحديث بيانات المعيار بنجاح في قاعدة البيانات', 'success');
   };
 
   const deleteStandard = async (id: string) => {
@@ -611,13 +620,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const client = getSupabaseClient();
     if (client) {
       try {
-        await client.from('hospitality_standards').delete().eq('id', id);
+        const { error } = await client.from('hospitality_standards').delete().eq('id', id);
+        if (error) {
+          console.error('Supabase standards delete error:', error);
+          showToast('تنبيه: حدث خطأ أثناء حذف المعيار من قاعدة البيانات', 'error');
+        }
       } catch (e) {
         console.warn('Supabase standards delete skipped:', e);
       }
     }
     stopGlobalLoading();
-    showToast('تم حذف معيار الضيافة بنجاح', 'info');
+    showToast('تم حذف معيار الضيافة بنجاح من قاعدة البيانات', 'info');
   };
 
   // Services actions
@@ -634,7 +647,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const client = getSupabaseClient();
     if (client) {
       try {
-        await client.from('services').insert({
+        const { error } = await client.from('services').insert({
           id: newService.id,
           title: newService.title,
           english_title: newService.englishTitle,
@@ -646,12 +659,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           destination: newService.destination,
           features: newService.features,
         });
+
+        if (error) {
+          console.error('Supabase insert service error:', error);
+          showToast('تنبيه: حدث خطأ أثناء إضافة الخدمة في قاعدة البيانات', 'error');
+        }
       } catch (err) {
         console.warn('Supabase sync skipped', err);
       }
     }
     stopGlobalLoading();
-    showToast('تمت إضافة الخدمة السياحية الفاخرة بنجاح إلى القائمة', 'success');
+    showToast('تمت إضافة الخدمة السياحية الفاخرة بنجاح إلى القائمة وقاعدة البيانات', 'success');
   };
 
   const updateService = async (id: string, updates: Partial<TourismService>) => {
@@ -662,23 +680,27 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (client) {
       try {
         const mappedUpdates: Record<string, unknown> = {};
-        if (updates.title) mappedUpdates.title = updates.title;
-        if (updates.englishTitle) mappedUpdates.english_title = updates.englishTitle;
-        if (updates.description) mappedUpdates.description = updates.description;
-        if (updates.price) mappedUpdates.price = updates.price;
-        if (updates.currency) mappedUpdates.currency = updates.currency;
-        if (updates.badge) mappedUpdates.badge = updates.badge;
-        if (updates.imageUrl) mappedUpdates.image_url = updates.imageUrl;
-        if (updates.destination) mappedUpdates.destination = updates.destination;
-        if (updates.features) mappedUpdates.features = updates.features;
+        if (updates.title !== undefined) mappedUpdates.title = updates.title;
+        if (updates.englishTitle !== undefined) mappedUpdates.english_title = updates.englishTitle;
+        if (updates.description !== undefined) mappedUpdates.description = updates.description;
+        if (updates.price !== undefined) mappedUpdates.price = updates.price;
+        if (updates.currency !== undefined) mappedUpdates.currency = updates.currency;
+        if (updates.badge !== undefined) mappedUpdates.badge = updates.badge;
+        if (updates.imageUrl !== undefined) mappedUpdates.image_url = updates.imageUrl;
+        if (updates.destination !== undefined) mappedUpdates.destination = updates.destination;
+        if (updates.features !== undefined) mappedUpdates.features = updates.features;
 
-        await client.from('services').update(mappedUpdates).eq('id', id);
+        const { error } = await client.from('services').update(mappedUpdates).eq('id', id);
+        if (error) {
+          console.error('Supabase update service error:', error);
+          showToast('تنبيه: حدث خطأ أثناء تحديث الخدمة في قاعدة البيانات', 'error');
+        }
       } catch (err) {
         console.warn('Supabase update skipped', err);
       }
     }
     stopGlobalLoading();
-    showToast('تم تحديث تفاصيل الخدمة السياحية بنجاح', 'success');
+    showToast('تم تحديث تفاصيل الخدمة السياحية بنجاح في قاعدة البيانات', 'success');
   };
 
   const deleteService = async (id: string) => {
@@ -689,13 +711,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const client = getSupabaseClient();
     if (client) {
       try {
-        await client.from('services').delete().eq('id', id);
+        const { error } = await client.from('services').delete().eq('id', id);
+        if (error) {
+          console.error('Supabase delete service error:', error);
+          showToast('تنبيه: حدث خطأ أثناء حذف الخدمة من قاعدة البيانات', 'error');
+        }
       } catch (err) {
         console.warn('Supabase delete skipped', err);
       }
     }
     stopGlobalLoading();
-    showToast('تم حذف الخدمة السياحية بنجاح', 'info');
+    showToast('تم حذف الخدمة السياحية بنجاح من قاعدة البيانات', 'info');
   };
 
   // Reviews actions
@@ -723,7 +749,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const client = getSupabaseClient();
     if (client) {
       try {
-        await client.from('reviews').insert({
+        const { error } = await client.from('reviews').insert({
           id: newReview.id,
           service_id: newReview.serviceId,
           author_name: newReview.authorName,
@@ -732,6 +758,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           comment: newReview.comment,
           status: 'pending',
         });
+
+        if (error) {
+          console.error('Supabase insert review error:', error);
+          showToast('تنبيه: حدث خطأ أثناء إرسال التقييم إلى قاعدة البيانات', 'error');
+        }
       } catch (err) {
         console.warn('Supabase insert review skipped', err);
       }
@@ -747,13 +778,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const client = getSupabaseClient();
     if (client) {
       try {
-        await client.from('reviews').update({ status: 'approved' }).eq('id', id);
+        const { error } = await client.from('reviews').update({ status: 'approved' }).eq('id', id);
+        if (error) {
+          console.error('Supabase approve review error:', error);
+          showToast('تنبيه: حدث خطأ أثناء اعتماد التقييم في قاعدة البيانات', 'error');
+        }
       } catch (err) {
         console.warn('Supabase approve review skipped', err);
       }
     }
     stopGlobalLoading();
-    showToast('تم اعتماد ونشر التقييم في الواجهة الرئيسية بنجاح', 'success');
+    showToast('تم اعتماد ونشر التقييم في الواجهة الرئيسية بنجاح في قاعدة البيانات', 'success');
   };
 
   const rejectReview = async (id: string) => {
@@ -763,13 +798,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const client = getSupabaseClient();
     if (client) {
       try {
-        await client.from('reviews').update({ status: 'rejected' }).eq('id', id);
+        const { error } = await client.from('reviews').update({ status: 'rejected' }).eq('id', id);
+        if (error) {
+          console.error('Supabase reject review error:', error);
+          showToast('تنبيه: حدث خطأ أثناء تعديل حالة التقييم في قاعدة البيانات', 'error');
+        }
       } catch (err) {
         console.warn('Supabase reject review skipped', err);
       }
     }
     stopGlobalLoading();
-    showToast('تم تغيير حالة التقييم إلى مرفوض', 'info');
+    showToast('تم تغيير حالة التقييم إلى مرفوض في قاعدة البيانات', 'info');
   };
 
   const deleteReview = async (id: string) => {
@@ -779,13 +818,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const client = getSupabaseClient();
     if (client) {
       try {
-        await client.from('reviews').delete().eq('id', id);
+        const { error } = await client.from('reviews').delete().eq('id', id);
+        if (error) {
+          console.error('Supabase delete review error:', error);
+          showToast('تنبيه: حدث خطأ أثناء حذف التقييم من قاعدة البيانات', 'error');
+        }
       } catch (err) {
         console.warn('Supabase delete review skipped', err);
       }
     }
     stopGlobalLoading();
-    showToast('تم حذف التقييم نهائياً بنجاح', 'info');
+    showToast('تم حذف التقييم نهائياً بنجاح من قاعدة البيانات', 'info');
   };
 
   const getApprovedReviews = (serviceId: string): Review[] => {
@@ -812,13 +855,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const client = getSupabaseClient();
     if (client) {
       try {
-        await client.from('social_links').update(updates).eq('id', id);
+        const mappedUpdates: Record<string, unknown> = {};
+        if (updates.platform !== undefined) mappedUpdates.platform = updates.platform;
+        if (updates.label !== undefined) mappedUpdates.label = updates.label;
+        if (updates.url !== undefined) mappedUpdates.url = updates.url;
+        if (updates.isActive !== undefined) mappedUpdates.is_active = updates.isActive;
+        if (updates.description !== undefined) mappedUpdates.description = updates.description;
+        if (updates.badge !== undefined) mappedUpdates.badge = updates.badge;
+        if (updates.actionText !== undefined) mappedUpdates.action_text = updates.actionText;
+
+        const { error } = await client.from('social_links').update(mappedUpdates).eq('id', id);
+        if (error) {
+          console.error('Supabase update social link error:', error);
+          showToast('تنبيه: حدث خطأ أثناء تحديث قناة التواصل في قاعدة البيانات', 'error');
+        }
       } catch (err) {
         console.warn('Supabase update social link skipped', err);
       }
     }
     stopGlobalLoading();
-    showToast('تم تحديث تفاصيل قناة التواصل بنجاح', 'success');
+    showToast('تم تحديث تفاصيل قناة التواصل بنجاح في قاعدة البيانات', 'success');
   };
 
   const addSocialLink = async (linkData: Omit<SocialLink, 'id'>) => {
@@ -832,13 +888,27 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const client = getSupabaseClient();
     if (client) {
       try {
-        await client.from('social_links').insert(newLink);
+        const { error } = await client.from('social_links').insert({
+          id: newLink.id,
+          platform: newLink.platform,
+          label: newLink.label,
+          url: newLink.url,
+          is_active: newLink.isActive,
+          description: newLink.description || null,
+          badge: newLink.badge || null,
+          action_text: newLink.actionText || null,
+        });
+
+        if (error) {
+          console.error('Supabase add social link error:', error);
+          showToast('تنبيه: حدث خطأ أثناء إضافة قناة التواصل في قاعدة البيانات', 'error');
+        }
       } catch (err) {
         console.warn('Supabase add social link skipped', err);
       }
     }
     stopGlobalLoading();
-    showToast('تمت إضافة قناة التواصل الجديدة بنجاح', 'success');
+    showToast('تمت إضافة قناة التواصل الجديدة بنجاح في قاعدة البيانات', 'success');
   };
 
   const deleteSocialLink = async (id: string) => {
@@ -848,13 +918,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const client = getSupabaseClient();
     if (client) {
       try {
-        await client.from('social_links').delete().eq('id', id);
+        const { error } = await client.from('social_links').delete().eq('id', id);
+        if (error) {
+          console.error('Supabase delete social link error:', error);
+          showToast('تنبيه: حدث خطأ أثناء حذف القناة من قاعدة البيانات', 'error');
+        }
       } catch (err) {
         console.warn('Supabase delete social link skipped', err);
       }
     }
     stopGlobalLoading();
-    showToast('تمت إزالة قناة التواصل بنجاح', 'info');
+    showToast('تمت إزالة قناة التواصل بنجاح من قاعدة البيانات', 'info');
   };
 
   const primaryWhatsAppNumber = (() => {
