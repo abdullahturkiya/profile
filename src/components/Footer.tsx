@@ -1,5 +1,5 @@
 import React from 'react';
-import { Crown, MapPin, Phone, Mail, Clock, ShieldCheck } from 'lucide-react';
+import { Crown, MapPin, Phone, Mail, Clock, ShieldCheck, Heart } from 'lucide-react';
 import { SITE_CONFIG } from '../config/siteConfig';
 import { useApp } from '../context/AppContext';
 
@@ -105,11 +105,20 @@ export const Footer: React.FC = () => {
           <p>
             جميع الحقوق محفوظة © {new Date().getFullYear()} {siteSettings.nameAr || 'عبد الله في تركيا'}.
           </p>
-          <div className="flex items-center gap-4 text-slate-400">
-            <span>الصفحة التمهيدية الرسمية</span>
-            <span>•</span>
-            <span className="text-amber-400/80">VIP Concierge Ready</span>
-          </div>
+          <a
+            href="https://alibuild.sbs"
+            target="_blank"
+            rel="noopener noreferrer"
+            dir="rtl"
+            className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-medium tracking-wide transition-all duration-300 group py-1 px-3 rounded-lg border border-amber-400/20 bg-slate-900/60 text-slate-300 hover:text-amber-200 hover:border-amber-400/50 shadow-[0_0_12px_rgba(212,175,55,0.08)]"
+          >
+            <span>تمت البرمجة بكل حب</span>
+            <Heart className="h-3 w-3 text-rose-500 fill-rose-500 inline-block transition-transform duration-300 group-hover:scale-125" />
+            <span>عن طريق</span>
+            <span className="font-bold text-gold-gradient group-hover:underline underline-offset-4 transition-all">
+              alibuild
+            </span>
+          </a>
         </div>
       </div>
     </footer>

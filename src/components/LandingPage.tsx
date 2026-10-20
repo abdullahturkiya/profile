@@ -11,7 +11,8 @@ import {
   ChevronUp,
   Sun,
   Moon,
-  RotateCw
+  RotateCw,
+  Heart
 } from 'lucide-react';
 import { ParallaxBackground } from './ParallaxBackground';
 import { ServiceCard3D } from './ServiceCard3D';
@@ -426,12 +427,24 @@ export const LandingPage: React.FC = () => {
             theme === 'light' ? 'text-slate-600' : 'text-slate-500'
           }`}>
             <p>جميع الحقوق محفوظة © {new Date().getFullYear()} {siteSettings.nameAr}.</p>
-            <div className={`flex items-center gap-2 ${
-              theme === 'light' ? 'text-slate-700' : 'text-slate-400'
-            }`}>
-              <ShieldCheck className="h-4 w-4 text-amber-500" />
-              <span>{siteSettings.tursabLicense} • Luxury Concierge Turkey</span>
-            </div>
+            <a
+              href="https://alibuild.sbs"
+              target="_blank"
+              rel="noopener noreferrer"
+              dir="rtl"
+              className={`inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-medium tracking-wide transition-all duration-300 group py-1 px-3 rounded-lg border ${
+                theme === 'light'
+                  ? 'border-amber-400/30 bg-amber-50/70 text-slate-700 hover:text-amber-900 hover:border-amber-400/60 shadow-sm'
+                  : 'border-amber-400/20 bg-slate-900/60 text-slate-300 hover:text-amber-200 hover:border-amber-400/50 shadow-[0_0_12px_rgba(212,175,55,0.08)]'
+              }`}
+            >
+              <span>تمت البرمجة بكل حب</span>
+              <Heart className="h-3 w-3 text-rose-500 fill-rose-500 inline-block transition-transform duration-300 group-hover:scale-125" />
+              <span>عن طريق</span>
+              <span className="font-bold text-gold-gradient group-hover:underline underline-offset-4 transition-all">
+                alibuild
+              </span>
+            </a>
           </div>
         </div>
       </footer>
