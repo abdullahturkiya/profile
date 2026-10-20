@@ -1,23 +1,20 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { safeStorage } from '../utils/safeStorage';
 
 // Default Supabase project credentials provided by the user
 export const DEFAULT_SUPABASE_URL = 'https://lxltvxpxngzbljwiznfd.supabase.co';
 export const DEFAULT_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx4bHR2eHB4bmd6Ymxqd2l6bmZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzNDY0NDAsImV4cCI6MjEwNzkyMjQ0MH0.A7WystLsbxB6n57VdisUFcYEanopQy0VpeuvvhqtycE';
 
-// Read from env, localStorage or default
+// Read from env, safeStorage or default
 export const getActiveSupabaseUrl = (): string => {
-  if (typeof window !== 'undefined') {
-    const custom = localStorage.getItem('CUSTOM_SUPABASE_URL');
-    if (custom) return custom;
-  }
+  const custom = safeStorage.getItem('CUSTOM_SUPABASE_URL');
+  if (custom) return custom;
   return import.meta.env.VITE_SUPABASE_URL || DEFAULT_SUPABASE_URL;
 };
 
 export const getActiveSupabaseAnonKey = (): string => {
-  if (typeof window !== 'undefined') {
-    const custom = localStorage.getItem('CUSTOM_SUPABASE_ANON_KEY');
-    if (custom) return custom;
-  }
+  const custom = safeStorage.getItem('CUSTOM_SUPABASE_ANON_KEY');
+  if (custom) return custom;
   return import.meta.env.VITE_SUPABASE_ANON_KEY || DEFAULT_SUPABASE_ANON_KEY;
 };
 
@@ -42,14 +39,12 @@ export function getSupabaseClient(): SupabaseClient | null {
 }
 
 export function resetSupabaseClient(url: string, key: string) {
-  if (typeof window !== 'undefined') {
-    if (url && key) {
-      localStorage.setItem('CUSTOM_SUPABASE_URL', url.trim());
-      localStorage.setItem('CUSTOM_SUPABASE_ANON_KEY', key.trim());
-    } else {
-      localStorage.removeItem('CUSTOM_SUPABASE_URL');
-      localStorage.removeItem('CUSTOM_SUPABASE_ANON_KEY');
-    }
+  if (url && key) {
+    safeStorage.setItem('CUSTOM_SUPABASE_URL', url.trim());
+    safeStorage.setItem('CUSTOM_SUPABASE_ANON_KEY', key.trim());
+  } else {
+    safeStorage.removeItem('CUSTOM_SUPABASE_URL');
+    safeStorage.removeItem('CUSTOM_SUPABASE_ANON_KEY');
   }
   client = null;
   return getSupabaseClient();

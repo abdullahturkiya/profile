@@ -2,6 +2,7 @@ import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
 import './index.css';
+import { safeStorage } from './utils/safeStorage';
 
 interface ErrorPayload {
   name: string;
@@ -15,7 +16,8 @@ let preMountError: ErrorPayload | null = null;
 
 if (typeof window !== 'undefined') {
   window.addEventListener('error', (event: ErrorEvent) => {
-    if (!preMountError) {
+    // Only capture uncaught fatal script errors that prevent mounting
+    if (!preMountError && event.error) {
       const err = event.error;
       preMountError = {
         name: err?.name || 'WindowError',
@@ -26,34 +28,9 @@ if (typeof window !== 'undefined') {
     }
   });
 
+  // Log unhandled promise rejections without terminating the entire UI on mobile
   window.addEventListener('unhandledrejection', (event: PromiseRejectionEvent) => {
-    if (!preMountError) {
-      const reason = event.reason;
-      let name = 'UnhandledPromiseRejection';
-      let message = 'Promise was rejected with no error details';
-      let stack = '';
-
-      if (reason instanceof Error) {
-        name = reason.name || 'UnhandledPromiseRejection';
-        message = reason.message || 'Empty error message';
-        stack = reason.stack || '';
-      } else if (typeof reason === 'string') {
-        message = reason;
-      } else if (reason && typeof reason === 'object') {
-        try {
-          message = JSON.stringify(reason);
-        } catch {
-          message = String(reason);
-        }
-      }
-
-      preMountError = {
-        name,
-        message,
-        stack,
-        source: 'unhandledrejection',
-      };
-    }
+    console.warn('Non-fatal unhandled promise rejection captured:', event.reason);
   });
 }
 
@@ -75,63 +52,32 @@ class ErrorBoundary extends Component<Props, State> {
   };
 
   private handleGlobalError = (event: ErrorEvent) => {
-    console.error('Captured window.onerror:', event);
-    const err = event.error;
-    const name = err?.name || 'WindowError';
-    const message = err?.message || event.message || 'Unknown window error occurred';
-    const stack = err?.stack || `${event.filename || 'unknown'}:${event.lineno || 0}:${event.colno || 0}`;
+    // Only trigger if an actual uncaught error occurred and no component has handled it
+    if (event.error) {
+      console.error('Captured fatal window.onerror:', event);
+      const err = event.error;
+      const name = err?.name || 'WindowError';
+      const message = err?.message || event.message || 'Unknown window error occurred';
+      const stack = err?.stack || `${event.filename || 'unknown'}:${event.lineno || 0}:${event.colno || 0}`;
 
-    this.setState({
-      hasError: true,
-      error: {
-        name,
-        message,
-        stack,
-        source: 'window.onerror',
-      },
-    });
-  };
-
-  private handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-    console.error('Captured unhandledrejection:', event);
-    const reason = event.reason;
-    let name = 'UnhandledPromiseRejection';
-    let message = 'Promise was rejected with no error details';
-    let stack = '';
-
-    if (reason instanceof Error) {
-      name = reason.name || 'UnhandledPromiseRejection';
-      message = reason.message || 'Empty error message';
-      stack = reason.stack || '';
-    } else if (typeof reason === 'string') {
-      message = reason;
-    } else if (reason && typeof reason === 'object') {
-      try {
-        message = JSON.stringify(reason);
-      } catch {
-        message = String(reason);
-      }
+      this.setState({
+        hasError: true,
+        error: {
+          name,
+          message,
+          stack,
+          source: 'window.onerror',
+        },
+      });
     }
-
-    this.setState({
-      hasError: true,
-      error: {
-        name,
-        message,
-        stack,
-        source: 'unhandledrejection',
-      },
-    });
   };
 
   public componentDidMount() {
     window.addEventListener('error', this.handleGlobalError);
-    window.addEventListener('unhandledrejection', this.handleUnhandledRejection);
   }
 
   public componentWillUnmount() {
     window.removeEventListener('error', this.handleGlobalError);
-    window.removeEventListener('unhandledrejection', this.handleUnhandledRejection);
   }
 
   public static getDerivedStateFromError(error: Error): State {
@@ -207,7 +153,11 @@ class ErrorBoundary extends Component<Props, State> {
             {/* Reload Platform Yellow Button */}
             <button
               onClick={() => {
-                localStorage.clear();
+                try {
+                  safeStorage.clear();
+                } catch {
+                  // Ignore
+                }
                 window.location.reload();
               }}
               className="w-full rounded-xl py-3 px-6 font-bold text-slate-950 text-xs sm:text-sm bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500 hover:from-amber-200 hover:to-amber-400 shadow-[0_0_20px_rgba(212,175,55,0.3)] transition-all cursor-pointer"

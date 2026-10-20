@@ -3,6 +3,7 @@ import { RealtimeChannel } from '@supabase/supabase-js';
 import { TourismService, Review, SocialLink, AdminUser, SiteSettings, HospitalityStandard, ThemeMode } from '../types';
 import { INITIAL_SERVICES, INITIAL_REVIEWS, INITIAL_SOCIAL_LINKS, INITIAL_SITE_SETTINGS, INITIAL_STANDARDS } from '../data/initialData';
 import { getSupabaseClient, resetSupabaseClient } from '../lib/supabase';
+import { safeStorage } from '../utils/safeStorage';
 
 import { ToastNotificationContainer, ToastMessage } from '../components/ToastNotificationContainer';
 import { GlobalLoadingIndicator } from '../components/GlobalLoadingIndicator';
@@ -141,19 +142,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Royal Theme Mode: 'dark' (Deep Royal Obsidian) | 'light' (Royal Pearl / Ivory & Gold)
   const [theme, setTheme] = useState<ThemeMode>(() => {
-    if (typeof window !== 'undefined') {
-      const cached = localStorage.getItem('ELITE_TURKEY_THEME') as ThemeMode;
-      if (cached === 'light' || cached === 'dark') return cached;
-    }
+    const cached = safeStorage.getItem('ELITE_TURKEY_THEME') as ThemeMode;
+    if (cached === 'light' || cached === 'dark') return cached;
     return 'dark';
   });
 
   const toggleTheme = () => {
     setTheme((prev) => {
       const next = prev === 'dark' ? 'light' : 'dark';
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('ELITE_TURKEY_THEME', next);
-      }
+      safeStorage.setItem('ELITE_TURKEY_THEME', next);
       showToast(
         next === 'light' ? 'تم تفعيل الوضع النهاري الملكي' : 'تم تفعيل الوضع الليلي الملكي',
         'info',
@@ -183,7 +180,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Site Settings
   const [siteSettings, setSiteSettings] = useState<SiteSettings>(() => {
     try {
-      const cached = localStorage.getItem('ELITE_TURKEY_SETTINGS');
+      const cached = safeStorage.getItem('ELITE_TURKEY_SETTINGS');
       if (cached) {
         const parsed = JSON.parse(cached);
         return { ...INITIAL_SITE_SETTINGS, ...parsed };
@@ -197,7 +194,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Hospitality Standards
   const [standards, setStandards] = useState<HospitalityStandard[]>(() => {
     try {
-      const cached = localStorage.getItem('ELITE_TURKEY_STANDARDS');
+      const cached = safeStorage.getItem('ELITE_TURKEY_STANDARDS');
       if (cached) return JSON.parse(cached);
     } catch (e) {
       console.warn('Failed to parse cached standards:', e);
@@ -205,24 +202,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return INITIAL_STANDARDS;
   });
 
-  // Services
+  // Services (Fall back immediately to INITIAL_SERVICES to guarantee instant, flawless iOS load)
   const [services, setServices] = useState<TourismService[]>(() => {
     try {
-      const cached = localStorage.getItem('ELITE_TURKEY_SERVICES');
+      const cached = safeStorage.getItem('ELITE_TURKEY_SERVICES');
       if (cached) {
         const parsed = JSON.parse(cached);
-        if (Array.isArray(parsed)) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
       }
     } catch (e) {
       console.warn('Failed to parse cached services:', e);
     }
-    return [];
+    return INITIAL_SERVICES;
   });
 
   // Reviews
   const [reviews, setReviews] = useState<Review[]>(() => {
     try {
-      const cached = localStorage.getItem('ELITE_TURKEY_REVIEWS');
+      const cached = safeStorage.getItem('ELITE_TURKEY_REVIEWS');
       if (cached) return JSON.parse(cached);
     } catch (e) {
       console.warn('Failed to parse cached reviews:', e);
@@ -233,7 +230,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Social Links
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>(() => {
     try {
-      const cached = localStorage.getItem('ELITE_TURKEY_SOCIALS');
+      const cached = safeStorage.getItem('ELITE_TURKEY_SOCIALS');
       if (cached) return JSON.parse(cached);
     } catch (e) {
       console.warn('Failed to parse cached social links:', e);
@@ -244,7 +241,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Admin user
   const [adminUser, setAdminUser] = useState<AdminUser>(() => {
     try {
-      const cached = localStorage.getItem('ELITE_TURKEY_ADMIN');
+      const cached = safeStorage.getItem('ELITE_TURKEY_ADMIN');
       if (cached) return JSON.parse(cached);
     } catch (e) {
       console.warn('Failed to parse cached admin user:', e);
@@ -257,31 +254,31 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Direct Sync & Royal Splash Loading States
   const [isInitialDataLoading, setIsInitialDataLoading] = useState<boolean>(true);
   const [loadingStageText, setLoadingStageText] = useState<string>('مرحباً بكم، جاري تحضير تجربة سفركم الفاخرة...');
-  const [loadingProgressPercent, setLoadingProgressPercent] = useState<number>(15);
+  const [loadingProgressPercent, setLoadingProgressPercent] = useState<number>(20);
 
-  // Sync state to localStorage (offline cache backup)
+  // Sync state to safeStorage (offline cache backup without iOS crash)
   useEffect(() => {
-    localStorage.setItem('ELITE_TURKEY_SETTINGS', JSON.stringify(siteSettings));
+    safeStorage.setItem('ELITE_TURKEY_SETTINGS', JSON.stringify(siteSettings));
   }, [siteSettings]);
 
   useEffect(() => {
-    localStorage.setItem('ELITE_TURKEY_STANDARDS', JSON.stringify(standards));
+    safeStorage.setItem('ELITE_TURKEY_STANDARDS', JSON.stringify(standards));
   }, [standards]);
 
   useEffect(() => {
-    localStorage.setItem('ELITE_TURKEY_SERVICES', JSON.stringify(services));
+    safeStorage.setItem('ELITE_TURKEY_SERVICES', JSON.stringify(services));
   }, [services]);
 
   useEffect(() => {
-    localStorage.setItem('ELITE_TURKEY_REVIEWS', JSON.stringify(reviews));
+    safeStorage.setItem('ELITE_TURKEY_REVIEWS', JSON.stringify(reviews));
   }, [reviews]);
 
   useEffect(() => {
-    localStorage.setItem('ELITE_TURKEY_SOCIALS', JSON.stringify(socialLinks));
+    safeStorage.setItem('ELITE_TURKEY_SOCIALS', JSON.stringify(socialLinks));
   }, [socialLinks]);
 
   useEffect(() => {
-    localStorage.setItem('ELITE_TURKEY_ADMIN', JSON.stringify(adminUser));
+    safeStorage.setItem('ELITE_TURKEY_ADMIN', JSON.stringify(adminUser));
   }, [adminUser]);
 
   // Core function to fetch fresh data directly from Supabase
@@ -352,7 +349,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           contactHeadquartersText: dbData.contact_headquarters_text ? String(dbData.contact_headquarters_text) : INITIAL_SITE_SETTINGS.contactHeadquartersText,
         };
         setSiteSettings(mappedSettings);
-        localStorage.setItem('ELITE_TURKEY_SETTINGS', JSON.stringify(mappedSettings));
+        safeStorage.setItem('ELITE_TURKEY_SETTINGS', JSON.stringify(mappedSettings));
       }
 
       // 2. Fetch live services directly from Supabase
@@ -363,7 +360,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (!srvErr && srvData) {
+      if (!srvErr && srvData && srvData.length > 0) {
         setIsSupabaseConnected(true);
         const mappedServices: TourismService[] = srvData.map((s: Record<string, unknown>) => ({
           id: String(s.id),
@@ -379,7 +376,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           createdAt: String(s.created_at || ''),
         }));
         setServices(mappedServices);
-        localStorage.setItem('ELITE_TURKEY_SERVICES', JSON.stringify(mappedServices));
+        safeStorage.setItem('ELITE_TURKEY_SERVICES', JSON.stringify(mappedServices));
       }
 
       // 3. Fetch live reviews directly from Supabase
@@ -398,7 +395,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           createdAt: String(r.created_at || new Date().toISOString()),
         }));
         setReviews(mappedReviews);
-        localStorage.setItem('ELITE_TURKEY_REVIEWS', JSON.stringify(mappedReviews));
+        safeStorage.setItem('ELITE_TURKEY_REVIEWS', JSON.stringify(mappedReviews));
       }
 
       // 4. Fetch social links directly from Supabase
@@ -417,7 +414,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           isActive: Boolean(l.is_active),
         }));
         setSocialLinks(mappedSocials);
-        localStorage.setItem('ELITE_TURKEY_SOCIALS', JSON.stringify(mappedSocials));
+        safeStorage.setItem('ELITE_TURKEY_SOCIALS', JSON.stringify(mappedSocials));
       }
 
       // 5. Fetch hospitality standards from Supabase
@@ -433,7 +430,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           icon: (d.icon as HospitalityStandard['icon']) || 'award',
         }));
         setStandards(mappedStandards);
-        localStorage.setItem('ELITE_TURKEY_STANDARDS', JSON.stringify(mappedStandards));
+        safeStorage.setItem('ELITE_TURKEY_STANDARDS', JSON.stringify(mappedStandards));
       }
 
       // 6. Verify admin user authentication status if logged in
@@ -446,7 +443,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
         if (!adminErr && !adminCheck) {
           setAdminUser({ email: '', isAuthenticated: false, isDemo: false });
-          localStorage.removeItem('ELITE_TURKEY_ADMIN');
+          safeStorage.removeItem('ELITE_TURKEY_ADMIN');
         }
       }
 
@@ -463,7 +460,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         showToast('تم تحديث المحتوى بنجاح', 'success', 3000);
       }
     } catch (err) {
-      console.warn('Direct fetch warning:', err);
+      console.warn('Direct fetch notice:', err);
       setIsInitialDataLoading(false);
     }
   };
@@ -477,9 +474,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
-  // Initial Supabase Sync with safety timeout
+  // Initial Supabase Sync with safety timeout (max 3.5 seconds to guarantee fast, responsive load on iOS mobile)
   useEffect(() => {
-    // Safety timer: maximum 7 seconds wait to prevent hanging if network is totally down
     const safetyTimer = setTimeout(() => {
       setIsInitialDataLoading((prev) => {
         if (prev) {
@@ -488,7 +484,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
         return false;
       });
-    }, 7000);
+    }, 3500);
 
     fetchFreshDatabaseData(false).finally(() => {
       clearTimeout(safetyTimer);
@@ -498,65 +494,75 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const client = getSupabaseClient();
     let servicesChannel: RealtimeChannel | null = null;
     if (client) {
-      servicesChannel = client
-        .channel('realtime:services')
-        .on(
-          'postgres_changes',
-          { event: '*', schema: 'public', table: 'services' },
-          (payload) => {
-            console.log('Realtime service update event:', payload);
-            if (payload.eventType === 'INSERT') {
-              const s = payload.new as Record<string, unknown>;
-              const mapped: TourismService = {
-                id: String(s.id),
-                title: String(s.title || ''),
-                englishTitle: String(s.english_title || ''),
-                description: String(s.description || ''),
-                price: Number(s.price || 0),
-                currency: String(s.currency || 'USD'),
-                badge: String(s.badge || 'VIP'),
-                imageUrl: String(s.image_url || ''),
-                destination: String(s.destination || 'إسطنبول'),
-                features: Array.isArray(s.features) ? s.features as string[] : [],
-                createdAt: String(s.created_at || ''),
-              };
-              setServices((prev) => {
-                if (prev.some((x) => x.id === mapped.id)) {
-                  return prev.map((x) => (x.id === mapped.id ? mapped : x));
+      try {
+        servicesChannel = client
+          .channel('realtime:services')
+          .on(
+            'postgres_changes',
+            { event: '*', schema: 'public', table: 'services' },
+            (payload) => {
+              console.log('Realtime service update event:', payload);
+              if (payload.eventType === 'INSERT') {
+                const s = payload.new as Record<string, unknown>;
+                const mapped: TourismService = {
+                  id: String(s.id),
+                  title: String(s.title || ''),
+                  englishTitle: String(s.english_title || ''),
+                  description: String(s.description || ''),
+                  price: Number(s.price || 0),
+                  currency: String(s.currency || 'USD'),
+                  badge: String(s.badge || 'VIP'),
+                  imageUrl: String(s.image_url || ''),
+                  destination: String(s.destination || 'إسطنبول'),
+                  features: Array.isArray(s.features) ? s.features as string[] : [],
+                  createdAt: String(s.created_at || ''),
+                };
+                setServices((prev) => {
+                  if (prev.some((x) => x.id === mapped.id)) {
+                    return prev.map((x) => (x.id === mapped.id ? mapped : x));
+                  }
+                  return [mapped, ...prev];
+                });
+              } else if (payload.eventType === 'UPDATE') {
+                const s = payload.new as Record<string, unknown>;
+                const mapped: TourismService = {
+                  id: String(s.id),
+                  title: String(s.title || ''),
+                  englishTitle: String(s.english_title || ''),
+                  description: String(s.description || ''),
+                  price: Number(s.price || 0),
+                  currency: String(s.currency || 'USD'),
+                  badge: String(s.badge || 'VIP'),
+                  imageUrl: String(s.image_url || ''),
+                  destination: String(s.destination || 'إسطنبول'),
+                  features: Array.isArray(s.features) ? s.features as string[] : [],
+                  createdAt: String(s.created_at || ''),
+                };
+                setServices((prev) => prev.map((x) => (x.id === mapped.id ? mapped : x)));
+              } else if (payload.eventType === 'DELETE') {
+                const deletedId = (payload.old as { id?: string })?.id;
+                if (deletedId) {
+                  setServices((prev) => prev.filter((x) => x.id !== deletedId));
                 }
-                return [mapped, ...prev];
-              });
-            } else if (payload.eventType === 'UPDATE') {
-              const s = payload.new as Record<string, unknown>;
-              const mapped: TourismService = {
-                id: String(s.id),
-                title: String(s.title || ''),
-                englishTitle: String(s.english_title || ''),
-                description: String(s.description || ''),
-                price: Number(s.price || 0),
-                currency: String(s.currency || 'USD'),
-                badge: String(s.badge || 'VIP'),
-                imageUrl: String(s.image_url || ''),
-                destination: String(s.destination || 'إسطنبول'),
-                features: Array.isArray(s.features) ? s.features as string[] : [],
-                createdAt: String(s.created_at || ''),
-              };
-              setServices((prev) => prev.map((x) => (x.id === mapped.id ? mapped : x)));
-            } else if (payload.eventType === 'DELETE') {
-              const deletedId = (payload.old as { id?: string })?.id;
-              if (deletedId) {
-                setServices((prev) => prev.filter((x) => x.id !== deletedId));
               }
             }
-          }
-        )
-        .subscribe();
+          )
+          .subscribe((status, err) => {
+            if (err) console.warn('Realtime subscription notice:', err.message);
+          });
+      } catch (err) {
+        console.warn('Realtime channel setup caught:', err);
+      }
     }
 
     return () => {
       clearTimeout(safetyTimer);
       if (client && servicesChannel) {
-        client.removeChannel(servicesChannel);
+        try {
+          client.removeChannel(servicesChannel);
+        } catch {
+          // Ignore
+        }
       }
     };
   }, [adminUser.isAuthenticated, adminUser.email]);
@@ -568,7 +574,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     // Compute new settings state synchronously
     const newSettings: SiteSettings = { ...siteSettings, ...updates };
     setSiteSettings(newSettings);
-    localStorage.setItem('ELITE_TURKEY_SETTINGS', JSON.stringify(newSettings));
+    safeStorage.setItem('ELITE_TURKEY_SETTINGS', JSON.stringify(newSettings));
 
     const client = getSupabaseClient();
     if (client) {
@@ -1078,7 +1084,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const managerEmail = adminUser.email || 'admin@eliteturkey.com';
 
   const getStoredAdminPassword = (): string => {
-    return localStorage.getItem('ELITE_TURKEY_ADMIN_PASSWORD') || 'Admin@2025';
+    return safeStorage.getItem('ELITE_TURKEY_ADMIN_PASSWORD') || 'Admin@2025';
   };
 
   // Dynamic Admin Auth Actions: Dynamically queries admin_users table in Supabase
@@ -1173,7 +1179,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
     }
 
-    localStorage.setItem('ELITE_TURKEY_ADMIN_PASSWORD', newPassword.trim());
+    safeStorage.setItem('ELITE_TURKEY_ADMIN_PASSWORD', newPassword.trim());
     stopGlobalLoading();
     showToast('تم تحديث كلمة المرور لحساب المدير بنجاح', 'success');
     return { success: true };
