@@ -382,16 +382,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       // 3. Fetch live reviews directly from Supabase
       setLoadingStageText('عرض آراء وتجارب ضيوفنا الكرام...');
       setLoadingProgressPercent(74);
-      const { data: revData, error: revErr } = await client.from('reviews').select('*');
-      if (!revErr && revData && revData.length > 0) {
+      const { data: revData, error: revErr } = await client
+        .from('reviews')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (!revErr && revData) {
         const mappedReviews: Review[] = revData.map((r: Record<string, unknown>) => ({
           id: String(r.id),
-          serviceId: String(r.service_id),
-          authorName: String(r.author_name),
+          serviceId: String(r.service_id || ''),
+          authorName: String(r.author_name || ''),
           location: String(r.location || ''),
-          rating: Number(r.rating),
-          comment: String(r.comment),
-          status: r.status as 'pending' | 'approved' | 'rejected',
+          rating: Number(r.rating || 5),
+          comment: String(r.comment || ''),
+          status: (r.status as 'pending' | 'approved' | 'rejected') || 'pending',
           createdAt: String(r.created_at || new Date().toISOString()),
         }));
         setReviews(mappedReviews);
@@ -417,12 +420,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         safeStorage.setItem('ELITE_TURKEY_SOCIALS', JSON.stringify(mappedSocials));
       }
 
-      // 5. Fetch hospitality standards from Supabase
+      // 5. Fetch hospitality standards directly from Supabase
       const { data: stdData, error: stdErr } = await client
         .from('hospitality_standards')
         .select('*')
         .order('sort_order', { ascending: true });
-      if (!stdErr && stdData && stdData.length > 0) {
+      if (!stdErr && stdData) {
         const mappedStandards: HospitalityStandard[] = stdData.map((d: Record<string, unknown>) => ({
           id: String(d.id),
           title: String(d.title || ''),
@@ -493,15 +496,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     // Supabase Realtime Subscription for interactive live database reactivity
     const client = getSupabaseClient();
     let servicesChannel: RealtimeChannel | null = null;
+    let reviewsChannel: RealtimeChannel | null = null;
+    let standardsChannel: RealtimeChannel | null = null;
+    let settingsChannel: RealtimeChannel | null = null;
+
     if (client) {
       try {
+        // 1. Services realtime
         servicesChannel = client
           .channel('realtime:services')
           .on(
             'postgres_changes',
             { event: '*', schema: 'public', table: 'services' },
             (payload) => {
-              console.log('Realtime service update event:', payload);
               if (payload.eventType === 'INSERT') {
                 const s = payload.new as Record<string, unknown>;
                 const mapped: TourismService = {
@@ -547,9 +554,124 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               }
             }
           )
-          .subscribe((status, err) => {
-            if (err) console.warn('Realtime subscription notice:', err.message);
-          });
+          .subscribe();
+
+        // 2. Reviews realtime
+        reviewsChannel = client
+          .channel('realtime:reviews')
+          .on(
+            'postgres_changes',
+            { event: '*', schema: 'public', table: 'reviews' },
+            (payload) => {
+              if (payload.eventType === 'INSERT') {
+                const r = payload.new as Record<string, unknown>;
+                const mapped: Review = {
+                  id: String(r.id),
+                  serviceId: String(r.service_id || ''),
+                  authorName: String(r.author_name || ''),
+                  location: String(r.location || ''),
+                  rating: Number(r.rating || 5),
+                  comment: String(r.comment || ''),
+                  status: (r.status as 'pending' | 'approved' | 'rejected') || 'pending',
+                  createdAt: String(r.created_at || new Date().toISOString()),
+                };
+                setReviews((prev) => {
+                  if (prev.some((x) => x.id === mapped.id)) {
+                    return prev.map((x) => (x.id === mapped.id ? mapped : x));
+                  }
+                  return [mapped, ...prev];
+                });
+              } else if (payload.eventType === 'UPDATE') {
+                const r = payload.new as Record<string, unknown>;
+                const mapped: Review = {
+                  id: String(r.id),
+                  serviceId: String(r.service_id || ''),
+                  authorName: String(r.author_name || ''),
+                  location: String(r.location || ''),
+                  rating: Number(r.rating || 5),
+                  comment: String(r.comment || ''),
+                  status: (r.status as 'pending' | 'approved' | 'rejected') || 'pending',
+                  createdAt: String(r.created_at || new Date().toISOString()),
+                };
+                setReviews((prev) => prev.map((x) => (x.id === mapped.id ? mapped : x)));
+              } else if (payload.eventType === 'DELETE') {
+                const deletedId = (payload.old as { id?: string })?.id;
+                if (deletedId) {
+                  setReviews((prev) => prev.filter((x) => x.id !== deletedId));
+                }
+              }
+            }
+          )
+          .subscribe();
+
+        // 3. Hospitality Standards realtime
+        standardsChannel = client
+          .channel('realtime:standards')
+          .on(
+            'postgres_changes',
+            { event: '*', schema: 'public', table: 'hospitality_standards' },
+            (payload) => {
+              if (payload.eventType === 'INSERT') {
+                const d = payload.new as Record<string, unknown>;
+                const mapped: HospitalityStandard = {
+                  id: String(d.id),
+                  title: String(d.title || ''),
+                  description: String(d.description || ''),
+                  icon: (d.icon as HospitalityStandard['icon']) || 'award',
+                };
+                setStandards((prev) => {
+                  if (prev.some((x) => x.id === mapped.id)) {
+                    return prev.map((x) => (x.id === mapped.id ? mapped : x));
+                  }
+                  return [...prev, mapped];
+                });
+              } else if (payload.eventType === 'UPDATE') {
+                const d = payload.new as Record<string, unknown>;
+                const mapped: HospitalityStandard = {
+                  id: String(d.id),
+                  title: String(d.title || ''),
+                  description: String(d.description || ''),
+                  icon: (d.icon as HospitalityStandard['icon']) || 'award',
+                };
+                setStandards((prev) => prev.map((x) => (x.id === mapped.id ? mapped : x)));
+              } else if (payload.eventType === 'DELETE') {
+                const deletedId = (payload.old as { id?: string })?.id;
+                if (deletedId) {
+                  setStandards((prev) => prev.filter((x) => x.id !== deletedId));
+                }
+              }
+            }
+          )
+          .subscribe();
+
+        // 4. Site Settings realtime
+        settingsChannel = client
+          .channel('realtime:settings')
+          .on(
+            'postgres_changes',
+            { event: 'UPDATE', schema: 'public', table: 'site_settings' },
+            (payload) => {
+              const dbData = payload.new as Record<string, unknown>;
+              if (dbData && dbData.id === 'primary') {
+                setSiteSettings((prev) => ({
+                  ...prev,
+                  nameAr: dbData.name_ar ? String(dbData.name_ar) : prev.nameAr,
+                  nameEn: dbData.name_en ? String(dbData.name_en) : prev.nameEn,
+                  sloganAr: dbData.slogan_ar ? String(dbData.slogan_ar) : prev.sloganAr,
+                  heroHeadline: dbData.hero_headline ? String(dbData.hero_headline) : prev.heroHeadline,
+                  heroSubtitle: dbData.hero_subtitle ? String(dbData.hero_subtitle) : prev.heroSubtitle,
+                  heroPrimaryCtaText: dbData.hero_primary_cta_text !== null && dbData.hero_primary_cta_text !== undefined ? String(dbData.hero_primary_cta_text) : prev.heroPrimaryCtaText,
+                  heroPrimaryCtaCustomUrl: dbData.hero_primary_cta_custom_url !== null && dbData.hero_primary_cta_custom_url !== undefined ? String(dbData.hero_primary_cta_custom_url) : prev.heroPrimaryCtaCustomUrl,
+                  heroPrimaryCtaVisible: dbData.hero_primary_cta_visible !== null && dbData.hero_primary_cta_visible !== undefined ? Boolean(dbData.hero_primary_cta_visible) : prev.heroPrimaryCtaVisible,
+                  heroSecondaryCtaText: dbData.hero_secondary_cta_text !== null && dbData.hero_secondary_cta_text !== undefined ? String(dbData.hero_secondary_cta_text) : prev.heroSecondaryCtaText,
+                  heroSecondaryCtaLink: dbData.hero_secondary_cta_link !== null && dbData.hero_secondary_cta_link !== undefined ? String(dbData.hero_secondary_cta_link) : prev.heroSecondaryCtaLink,
+                  heroSecondaryCtaVisible: dbData.hero_secondary_cta_visible !== null && dbData.hero_secondary_cta_visible !== undefined ? Boolean(dbData.hero_secondary_cta_visible) : prev.heroSecondaryCtaVisible,
+                }));
+              }
+            }
+          )
+          .subscribe();
+
       } catch (err) {
         console.warn('Realtime channel setup caught:', err);
       }
@@ -557,9 +679,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     return () => {
       clearTimeout(safetyTimer);
-      if (client && servicesChannel) {
+      if (client) {
         try {
-          client.removeChannel(servicesChannel);
+          if (servicesChannel) client.removeChannel(servicesChannel);
+          if (reviewsChannel) client.removeChannel(reviewsChannel);
+          if (standardsChannel) client.removeChannel(standardsChannel);
+          if (settingsChannel) client.removeChannel(settingsChannel);
         } catch {
           // Ignore
         }
@@ -596,19 +721,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           hero_badge_visible: newSettings.heroBadgeVisible,
           hero_headline: newSettings.heroHeadline,
           hero_subtitle: newSettings.heroSubtitle,
-          hero_primary_cta_text: newSettings.heroPrimaryCtaText,
-          hero_primary_cta_custom_url: newSettings.heroPrimaryCtaCustomUrl,
-          hero_primary_cta_visible: newSettings.heroPrimaryCtaVisible,
-          hero_secondary_cta_text: newSettings.heroSecondaryCtaText,
-          hero_secondary_cta_link: newSettings.heroSecondaryCtaLink,
-          hero_secondary_cta_visible: newSettings.heroSecondaryCtaVisible,
+          hero_primary_cta_text: newSettings.heroPrimaryCtaText ?? '',
+          hero_primary_cta_custom_url: newSettings.heroPrimaryCtaCustomUrl ?? '',
+          hero_primary_cta_visible: newSettings.heroPrimaryCtaVisible !== false,
+          hero_secondary_cta_text: newSettings.heroSecondaryCtaText ?? '',
+          hero_secondary_cta_link: newSettings.heroSecondaryCtaLink ?? '',
+          hero_secondary_cta_visible: newSettings.heroSecondaryCtaVisible !== false,
           hero_trust_text_1: newSettings.heroTrustText1,
           hero_trust_text_2: newSettings.heroTrustText2,
           hero_trust_text_3: newSettings.heroTrustText3,
-          hero_trust_bar_visible: newSettings.heroTrustBarVisible,
+          hero_trust_bar_visible: newSettings.heroTrustBarVisible !== false,
 
           contact_badge_text: newSettings.contactBadgeText,
-          contact_badge_visible: newSettings.contactBadgeVisible,
+          contact_badge_visible: newSettings.contactBadgeVisible !== false,
           contact_title: newSettings.contactTitle,
           contact_subtitle: newSettings.contactSubtitle,
           contact_whats_app_number: newSettings.contactWhatsAppNumber,
@@ -617,8 +742,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           contact_whats_app_badge: newSettings.contactWhatsAppBadge,
           contact_whats_app_description: newSettings.contactWhatsAppDescription,
           contact_whats_app_button_text: newSettings.contactWhatsAppButtonText,
-          contact_whats_app_visible: newSettings.contactWhatsAppVisible,
-          contact_trust_bar_visible: newSettings.contactTrustBarVisible,
+          contact_whats_app_visible: newSettings.contactWhatsAppVisible !== false,
+          contact_trust_bar_visible: newSettings.contactTrustBarVisible !== false,
           contact_license_text: newSettings.contactLicenseText,
           contact_support_hours: newSettings.contactSupportHours,
           contact_headquarters_text: newSettings.contactHeadquartersText,
@@ -628,14 +753,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
         if (error) {
           console.error('Supabase site_settings upsert error:', error);
-          showToast('تنبيه: تعذر حفظ بعض التعديلات، يرجى المحاولة لاحقاً', 'error');
+          showToast('تنبيه: تعذر حفظ التعديلات في قاعدة البيانات', 'error');
+        } else {
+          showToast('تم حفظ وتحديث إعدادات الموقع وأزرار الهيرو في قاعدة البيانات بنجاح', 'success');
         }
       } catch (e) {
         console.warn('Supabase site_settings upsert skipped:', e);
+        showToast('تم حفظ التعديلات محلياً', 'info');
       }
+    } else {
+      showToast('تم حفظ الإعدادات محلياً', 'info');
     }
     stopGlobalLoading();
-    showToast('تم حفظ وتحديث إعدادات الموقع بنجاح', 'success');
   };
 
   // Standards Actions
@@ -654,19 +783,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           id: newStd.id,
           title: newStd.title,
           description: newStd.description,
-          icon: newStd.icon,
+          icon: newStd.icon || 'award',
+          sort_order: standards.length + 1,
         });
 
         if (error) {
           console.error('Supabase standards insert error:', error);
-          showToast('تنبيه: تعذر إضافة معيار الضيافة', 'error');
+          showToast('تنبيه: تعذر إضافة معيار الضيافة في قاعدة البيانات', 'error');
+        } else {
+          showToast('تمت إضافة معيار الضيافة في قاعدة البيانات بنجاح', 'success');
         }
       } catch (e) {
         console.warn('Supabase standards insert skipped:', e);
+        showToast('تمت إضافة معيار الضيافة محلياً', 'info');
       }
+    } else {
+      showToast('تمت إضافة معيار الضيافة محلياً', 'info');
     }
     stopGlobalLoading();
-    showToast('تمت إضافة معيار الضيافة الجديد بنجاح', 'success');
   };
 
   const updateStandard = async (id: string, updates: Partial<HospitalityStandard>) => {
@@ -676,17 +810,27 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const client = getSupabaseClient();
     if (client) {
       try {
-        const { error } = await client.from('hospitality_standards').update(updates).eq('id', id);
+        const target = standards.find((s) => s.id === id);
+        const { error } = await client.from('hospitality_standards').upsert({
+          id,
+          title: updates.title ?? target?.title ?? '',
+          description: updates.description ?? target?.description ?? '',
+          icon: updates.icon ?? target?.icon ?? 'award',
+        });
         if (error) {
           console.error('Supabase standards update error:', error);
-          showToast('تنبيه: تعذر تحديث معيار الضيافة', 'error');
+          showToast('تنبيه: تعذر تحديث معيار الضيافة في قاعدة البيانات', 'error');
+        } else {
+          showToast('تم تحديث معيار الضيافة في قاعدة البيانات بنجاح', 'success');
         }
       } catch (e) {
         console.warn('Supabase standards update skipped:', e);
+        showToast('تم تحديث معيار الضيافة محلياً', 'info');
       }
+    } else {
+      showToast('تم تحديث معيار الضيافة محلياً', 'info');
     }
     stopGlobalLoading();
-    showToast('تم تحديث معيار الضيافة بنجاح', 'success');
   };
 
   const deleteStandard = async (id: string) => {
@@ -699,14 +843,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const { error } = await client.from('hospitality_standards').delete().eq('id', id);
         if (error) {
           console.error('Supabase standards delete error:', error);
-          showToast('تنبيه: تعذر إتمام حذف المعيار', 'error');
+          showToast('تنبيه: تعذر إتمام حذف المعيار من قاعدة البيانات', 'error');
+        } else {
+          showToast('تم حذف معيار الضيافة من قاعدة البيانات بنجاح', 'info');
         }
       } catch (e) {
         console.warn('Supabase standards delete skipped:', e);
+        showToast('تم حذف المعيار محلياً', 'info');
       }
+    } else {
+      showToast('تم حذف المعيار محلياً', 'info');
     }
     stopGlobalLoading();
-    showToast('تم حذف معيار الضيافة بنجاح', 'info');
   };
 
   // Services actions
@@ -886,9 +1034,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const client = getSupabaseClient();
     if (client) {
       try {
+        // Only set service_id if it references an existing service in DB to avoid foreign key errors
+        const isValidService = serviceId && services.some((s) => s.id === serviceId);
         const { error } = await client.from('reviews').insert({
           id: newReview.id,
-          service_id: newReview.serviceId,
+          service_id: isValidService ? newReview.serviceId : null,
           author_name: newReview.authorName,
           location: newReview.location,
           rating: newReview.rating,
@@ -898,14 +1048,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
         if (error) {
           console.error('Supabase insert review error:', error);
-          showToast('تنبيه: تعذر إرسال التقييم في الوقت الحالي', 'error');
+          showToast('تنبيه: تعذر إرسال التقييم إلى قاعدة البيانات', 'error');
+        } else {
+          showToast('شكراً لك! تم إرسال تقييمك وحفظه بنجاح وهو قيد المراجعة الفورية.', 'success', 4500);
         }
       } catch (err) {
         console.warn('Supabase insert review skipped', err);
+        showToast('تم إرسال تقييمك محلياً', 'info');
       }
+    } else {
+      showToast('تم إرسال تقييمك محلياً', 'info');
     }
     stopGlobalLoading();
-    showToast('شكراً لك! تم إرسال تقييمك وهو قيد المراجعة الفورية من إدارة الموقع.', 'success', 4500);
   };
 
   const approveReview = async (id: string) => {
@@ -918,18 +1072,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const { error } = await client.from('reviews').update({ status: 'approved' }).eq('id', id);
         if (error) {
           console.error('Supabase approve review error:', error);
-          showToast('تنبيه: تعذر اعتماد التقييم', 'error');
+          showToast('تنبيه: تعذر اعتماد التقييم في قاعدة البيانات', 'error');
+        } else {
+          showToast('تم اعتماد ونشر التقييم في قاعدة البيانات بنجاح', 'success');
         }
       } catch (err) {
         console.warn('Supabase approve review skipped', err);
+        showToast('تم اعتماد التقييم محلياً', 'info');
       }
+    } else {
+      showToast('تم اعتماد التقييم محلياً', 'info');
     }
     stopGlobalLoading();
-    showToast('تم اعتماد ونشر التقييم في الواجهة الرئيسية بنجاح', 'success');
   };
 
   const rejectReview = async (id: string) => {
-    startGlobalLoading('جاري تعديل حالة التقييم...');
+    startGlobalLoading('جاري تعديل حالة التقييم إلى مرفوض...');
     setReviews((prev) => prev.map((r) => (r.id === id ? { ...r, status: 'rejected' } : r)));
 
     const client = getSupabaseClient();
@@ -938,18 +1096,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const { error } = await client.from('reviews').update({ status: 'rejected' }).eq('id', id);
         if (error) {
           console.error('Supabase reject review error:', error);
-          showToast('تنبيه: تعذر تعديل حالة التقييم', 'error');
+          showToast('تنبيه: تعذر تعديل حالة التقييم في قاعدة البيانات', 'error');
+        } else {
+          showToast('تم تغيير حالة التقييم إلى مرفوض وحفظها بقاعدة البيانات', 'info');
         }
       } catch (err) {
         console.warn('Supabase reject review skipped', err);
+        showToast('تم تعديل حالة التقييم محلياً', 'info');
       }
+    } else {
+      showToast('تم تعديل حالة التقييم محلياً', 'info');
     }
     stopGlobalLoading();
-    showToast('تم تغيير حالة التقييم إلى مرفوض', 'info');
   };
 
   const deleteReview = async (id: string) => {
-    startGlobalLoading('جاري حذف التقييم...');
+    startGlobalLoading('جاري حذف التقييم نهائياً من قاعدة البيانات...');
     setReviews((prev) => prev.filter((r) => r.id !== id));
 
     const client = getSupabaseClient();
@@ -958,14 +1120,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const { error } = await client.from('reviews').delete().eq('id', id);
         if (error) {
           console.error('Supabase delete review error:', error);
-          showToast('تنبيه: تعذر حذف التقييم', 'error');
+          showToast('تنبيه: تعذر حذف التقييم من قاعدة البيانات', 'error');
+        } else {
+          showToast('تم حذف التقييم من قاعدة البيانات بنجاح', 'info');
         }
       } catch (err) {
         console.warn('Supabase delete review skipped', err);
+        showToast('تم حذف التقييم محلياً', 'info');
       }
+    } else {
+      showToast('تم حذف التقييم محلياً', 'info');
     }
     stopGlobalLoading();
-    showToast('تم حذف التقييم بنجاح', 'info');
   };
 
   const getApprovedReviews = (serviceId: string): Review[] => {

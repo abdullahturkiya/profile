@@ -2489,6 +2489,20 @@ export const AdminDashboard: React.FC = () => {
                     </div>
                   )}
                 </div>
+
+                {/* Hero CTAs Instant Save Bar */}
+                <div className="pt-3 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+                  <span className="text-[11px] text-amber-200/80 text-center sm:text-right">
+                    يتم الحفظ والتطبيق فوراً في قاعدة البيانات وتحديث أزرار الهيرو لجميع الزوار.
+                  </span>
+                  <button
+                    type="submit"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl py-2.5 px-6 font-bold text-slate-950 text-xs shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500"
+                  >
+                    <Save className="h-3.5 w-3.5" />
+                    <span>حفظ أزرار الهيرو في قاعدة البيانات</span>
+                  </button>
+                </div>
               </div>
 
               {/* SECTION 5: Trust Credentials Bar */}
