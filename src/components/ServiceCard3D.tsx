@@ -11,7 +11,8 @@ interface ServiceCard3DProps {
 }
 
 export const ServiceCard3D: React.FC<ServiceCard3DProps> = ({ service, onOpenReviews, index }) => {
-  const { getServiceRating, primaryWhatsAppNumber, theme } = useApp();
+  const { getServiceRating, primaryWhatsAppNumber, siteSettings, theme } = useApp();
+  const targetWhatsAppNumber = siteSettings.contactWhatsAppNumber || primaryWhatsAppNumber;
   const ratingInfo = getServiceRating(service.id);
   const [imageError, setImageError] = useState(false);
 
@@ -47,10 +48,9 @@ export const ServiceCard3D: React.FC<ServiceCard3DProps> = ({ service, onOpenRev
 
   const bookingWhatsAppMessage = `مرحباً، أود حجز واستشارة بخصوص:
 🌟 ${service.title} (${service.englishTitle || service.destination})
-💵 السعر المعروض: $${service.price} ${service.currency}
-أرجو تزويدي بالبرنامج ومواعيد الانطلاق المتاحة. شكراً لكم.`;
+💵 السعر المعروض: $${service.price} ${service.currency}`;
 
-  const bookingWhatsAppUrl = `https://wa.me/${primaryWhatsAppNumber}?text=${encodeURIComponent(bookingWhatsAppMessage)}`;
+  const bookingWhatsAppUrl = `https://wa.me/${targetWhatsAppNumber}?text=${encodeURIComponent(bookingWhatsAppMessage)}`;
 
   return (
     <motion.div

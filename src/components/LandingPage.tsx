@@ -50,8 +50,10 @@ export const LandingPage: React.FC = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const visibleServices = isExpanded ? services : services.slice(0, INITIAL_VISIBLE_COUNT);
 
-  const directWhatsAppUrl = `https://wa.me/${primaryWhatsAppNumber}?text=${encodeURIComponent(
-    `مرحباً، أود الاستفسار عن حجز برنامج سياحي VIP في تركيا عبر ${siteSettings.nameAr}.`
+  const targetWhatsAppNumber = siteSettings.contactWhatsAppNumber || primaryWhatsAppNumber;
+  const targetWhatsAppMessage = siteSettings.contactWhatsAppDefaultMessage || 'مرحباً، أود التواصل معكم من أجل الخدمات في تركيا.';
+  const directWhatsAppUrl = `https://wa.me/${targetWhatsAppNumber}?text=${encodeURIComponent(
+    targetWhatsAppMessage
   )}`;
 
   return (

@@ -1,11 +1,15 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { MessageCircle } from 'lucide-react';
-import { SITE_CONFIG } from '../config/siteConfig';
+import { useApp } from '../context/AppContext';
 
 export const FloatingWhatsAppCTA: React.FC = () => {
-  const directWhatsAppUrl = `https://wa.me/${SITE_CONFIG.contact.whatsappNumber}?text=${encodeURIComponent(
-    SITE_CONFIG.contact.defaultWhatsAppMessage
+  const { primaryWhatsAppNumber, siteSettings } = useApp();
+  const targetWhatsAppNumber = siteSettings.contactWhatsAppNumber || primaryWhatsAppNumber;
+  const targetWhatsAppMessage = siteSettings.contactWhatsAppDefaultMessage || 'مرحباً، أود التواصل معكم من أجل الخدمات في تركيا.';
+
+  const directWhatsAppUrl = `https://wa.me/${targetWhatsAppNumber}?text=${encodeURIComponent(
+    targetWhatsAppMessage
   )}`;
 
   return (
