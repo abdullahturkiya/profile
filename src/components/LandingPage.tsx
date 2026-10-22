@@ -11,13 +11,14 @@ import {
   ChevronUp,
   Sun,
   Moon,
-  RotateCw,
+  Menu,
   Heart
 } from 'lucide-react';
 import { ParallaxBackground } from './ParallaxBackground';
 import { ServiceCard3D } from './ServiceCard3D';
 import { RoyalServiceSkeleton } from './RoyalServiceSkeleton';
 import { ReviewModal } from './ReviewModal';
+import { MobileSectionsMenu3D } from './MobileSectionsMenu3D';
 import { SiteLogo } from './SiteLogo';
 import { HospitalityStandardsSection } from './HospitalityStandardsSection';
 import { LuxurySocialChannels } from './LuxurySocialChannels';
@@ -32,19 +33,9 @@ export const LandingPage: React.FC = () => {
     navigateTo,
     theme,
     toggleTheme,
-    refreshDatabaseData,
   } = useApp();
   const [selectedServiceForReviews, setSelectedServiceForReviews] = useState<TourismService | null>(null);
-  const [isManualRefreshing, setIsManualRefreshing] = useState(false);
-
-  const handleManualRefresh = async () => {
-    setIsManualRefreshing(true);
-    try {
-      await refreshDatabaseData();
-    } finally {
-      setIsManualRefreshing(false);
-    }
-  };
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   // Show More / Show Less for services (At least 6 services initially)
   const INITIAL_VISIBLE_COUNT = 6;
@@ -131,20 +122,22 @@ export const LandingPage: React.FC = () => {
               </AnimatePresence>
             </button>
 
-            {/* Direct Instant Content Refresh Button */}
+            {/* 3D Mobile & Quick Sections Directory Button */}
             <button
               type="button"
-              onClick={handleManualRefresh}
-              disabled={isManualRefreshing}
-              title="تحديث المحتوى"
-              aria-label="تحديث المحتوى"
-              className={`relative flex items-center justify-center h-8 w-8 sm:h-11 sm:w-11 rounded-lg sm:rounded-xl border transition-all duration-300 shrink-0 ${
+              onClick={() => setIsMobileMenuOpen(true)}
+              title="أقسام وتجارب الموقع VIP"
+              aria-label="عرض أقسام الموقع"
+              className={`relative flex items-center justify-center gap-1 sm:gap-1.5 h-8 px-2 sm:px-3 sm:h-11 rounded-lg sm:rounded-xl border transition-all duration-300 shrink-0 shadow-md hover:scale-[1.03] active:scale-[0.97] ${
                 theme === 'light'
-                  ? 'border-amber-500/30 bg-white/95 text-amber-900 hover:bg-amber-50 hover:border-amber-500 shadow-[0_2px_10px_rgba(212,175,55,0.15)]'
-                  : 'border-amber-400/30 bg-slate-900/80 text-amber-300 hover:bg-amber-400/15 hover:border-amber-400 shadow-[0_0_12px_rgba(212,175,55,0.15)]'
+                  ? 'border-amber-500/40 bg-white/95 text-amber-900 hover:bg-amber-50 hover:border-amber-500 shadow-[0_2px_12px_rgba(212,175,55,0.2)]'
+                  : 'border-amber-400/35 bg-slate-900/85 text-amber-300 hover:bg-amber-400/15 hover:border-amber-400 shadow-[0_0_15px_rgba(212,175,55,0.18)]'
               }`}
             >
-              <RotateCw className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${isManualRefreshing ? 'animate-spin text-amber-400' : 'text-amber-400/90'}`} />
+              <Menu className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-amber-400 shrink-0" />
+              <span className="text-[10px] sm:text-xs font-bold whitespace-nowrap text-gold-gradient">
+                الأقسام
+              </span>
             </button>
 
             {/* Direct WhatsApp Concierge CTA - Ultra Responsive & Ultra Compact on Mobile */}
@@ -453,6 +446,17 @@ export const LandingPage: React.FC = () => {
       <ReviewModal
         service={selectedServiceForReviews}
         onClose={() => setSelectedServiceForReviews(null)}
+      />
+
+      {/* 8. 3D Royal Mobile Sections Directory Menu */}
+      <MobileSectionsMenu3D
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
+        theme={theme}
+        toggleTheme={toggleTheme}
+        siteSettings={siteSettings}
+        servicesCount={services.length}
+        directWhatsAppUrl={directWhatsAppUrl}
       />
     </ParallaxBackground>
   );
