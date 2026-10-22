@@ -122,13 +122,13 @@ export const LandingPage: React.FC = () => {
               </AnimatePresence>
             </button>
 
-            {/* 3D Mobile & Quick Sections Directory Button */}
+            {/* 3D Mobile & Tablet Sections Directory Button (Hidden on Desktop) */}
             <button
               type="button"
               onClick={() => setIsMobileMenuOpen(true)}
               title="أقسام وتجارب الموقع VIP"
               aria-label="عرض أقسام الموقع"
-              className={`relative flex items-center justify-center gap-1 sm:gap-1.5 h-8 px-2 sm:px-3 sm:h-11 rounded-lg sm:rounded-xl border transition-all duration-300 shrink-0 shadow-md hover:scale-[1.03] active:scale-[0.97] ${
+              className={`flex lg:hidden relative items-center justify-center gap-1 sm:gap-1.5 h-8 px-2 sm:px-3 sm:h-11 rounded-lg sm:rounded-xl border transition-all duration-300 shrink-0 shadow-md hover:scale-[1.03] active:scale-[0.97] ${
                 theme === 'light'
                   ? 'border-amber-500/40 bg-white/95 text-amber-900 hover:bg-amber-50 hover:border-amber-500 shadow-[0_2px_12px_rgba(212,175,55,0.2)]'
                   : 'border-amber-400/35 bg-slate-900/85 text-amber-300 hover:bg-amber-400/15 hover:border-amber-400 shadow-[0_0_15px_rgba(212,175,55,0.18)]'
