@@ -82,6 +82,32 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
+// Blacklist of old prototype/demo service IDs to ensure they NEVER appear on the live site
+export const DEMO_SERVICE_IDS = new Set([
+  'bosphorus-yacht',
+  'cappadocia-balloon',
+  'trabzon-villa',
+  'antalya-resort',
+  'istanbul-helicopter',
+  'bodrum-gulet',
+  'maybach-chauffeur',
+  'istanbul-yachts',
+  'cappadocia-antalya',
+  'trabzon-north',
+]);
+
+export const sanitizeServicesList = (list: unknown[]): TourismService[] => {
+  if (!Array.isArray(list)) return [];
+  return list.filter((item): item is TourismService => {
+    if (!item || typeof item !== 'object') return false;
+    const s = item as Partial<TourismService>;
+    if (!s.id || typeof s.id !== 'string') return false;
+    if (DEMO_SERVICE_IDS.has(s.id.toLowerCase())) return false;
+    if (!s.title || typeof s.title !== 'string') return false;
+    return true;
+  });
+};
+
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Hash-based routing state
   const getRouteFromHash = (): 'landing' | 'admin' => {
@@ -202,18 +228,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return INITIAL_STANDARDS;
   });
 
-  // Services (Fall back immediately to INITIAL_SERVICES to guarantee instant, flawless iOS load)
+
+  // Services (Strict Supabase Database Sync ONLY - never show demo/mock services)
   const [services, setServices] = useState<TourismService[]>(() => {
     try {
       const cached = safeStorage.getItem('ELITE_TURKEY_SERVICES');
       if (cached) {
         const parsed = JSON.parse(cached);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        const sanitized = sanitizeServicesList(parsed);
+        return sanitized;
       }
     } catch (e) {
       console.warn('Failed to parse cached services:', e);
     }
-    return INITIAL_SERVICES;
+    return [];
   });
 
   // Reviews
@@ -266,8 +294,34 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [standards]);
 
   useEffect(() => {
-    safeStorage.setItem('ELITE_TURKEY_SERVICES', JSON.stringify(services));
+    safeStorage.setItem('ELITE_TURKEY_SERVICES', JSON.stringify(sanitizeServicesList(services)));
   }, [services]);
+
+  // Instant purge of any lingering demo services from visitor's browser localStorage/safeStorage on startup
+  useEffect(() => {
+    try {
+      const cached = safeStorage.getItem('ELITE_TURKEY_SERVICES');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        const sanitized = sanitizeServicesList(parsed);
+        if (sanitized.length !== (Array.isArray(parsed) ? parsed.length : 0)) {
+          safeStorage.setItem('ELITE_TURKEY_SERVICES', JSON.stringify(sanitized));
+        }
+      }
+      const cachedReviews = safeStorage.getItem('ELITE_TURKEY_REVIEWS');
+      if (cachedReviews) {
+        const parsedRev = JSON.parse(cachedReviews);
+        if (Array.isArray(parsedRev)) {
+          const cleanedRev = parsedRev.map((r: Review) =>
+            DEMO_SERVICE_IDS.has(String(r.serviceId || '').toLowerCase()) ? { ...r, serviceId: '' } : r
+          );
+          safeStorage.setItem('ELITE_TURKEY_REVIEWS', JSON.stringify(cleanedRev));
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
 
   useEffect(() => {
     safeStorage.setItem('ELITE_TURKEY_REVIEWS', JSON.stringify(reviews));
@@ -352,7 +406,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         safeStorage.setItem('ELITE_TURKEY_SETTINGS', JSON.stringify(mappedSettings));
       }
 
-      // 2. Fetch live services directly from Supabase
+      // 2. Fetch live services directly from Supabase (Strict Supabase Database Sync ONLY)
       setLoadingStageText('تحميل أحدث الباقات والجولات والخدمات...');
       setLoadingProgressPercent(58);
       const { data: srvData, error: srvErr } = await client
@@ -360,21 +414,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (!srvErr && srvData && srvData.length > 0) {
+      if (!srvErr && srvData) {
         setIsSupabaseConnected(true);
-        const mappedServices: TourismService[] = srvData.map((s: Record<string, unknown>) => ({
-          id: String(s.id),
-          title: String(s.title || ''),
-          englishTitle: String(s.english_title || ''),
-          description: String(s.description || ''),
-          price: Number(s.price || 0),
-          currency: String(s.currency || 'USD'),
-          badge: String(s.badge || 'VIP'),
-          imageUrl: String(s.image_url || ''),
-          destination: String(s.destination || 'إسطنبول'),
-          features: Array.isArray(s.features) ? s.features as string[] : [],
-          createdAt: String(s.created_at || ''),
-        }));
+        const mappedServices: TourismService[] = srvData
+          .filter((s: Record<string, unknown>) => !DEMO_SERVICE_IDS.has(String(s.id || '').toLowerCase()))
+          .map((s: Record<string, unknown>) => ({
+            id: String(s.id),
+            title: String(s.title || ''),
+            englishTitle: String(s.english_title || ''),
+            description: String(s.description || ''),
+            price: Number(s.price || 0),
+            currency: String(s.currency || 'USD'),
+            badge: String(s.badge || 'VIP'),
+            imageUrl: String(s.image_url || ''),
+            destination: String(s.destination || 'إسطنبول'),
+            features: Array.isArray(s.features) ? (s.features as string[]) : [],
+            createdAt: String(s.created_at || ''),
+          }));
         setServices(mappedServices);
         safeStorage.setItem('ELITE_TURKEY_SERVICES', JSON.stringify(mappedServices));
       }
@@ -389,7 +445,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (!revErr && revData) {
         const mappedReviews: Review[] = revData.map((r: Record<string, unknown>) => ({
           id: String(r.id),
-          serviceId: String(r.service_id || ''),
+          serviceId: DEMO_SERVICE_IDS.has(String(r.service_id || '').toLowerCase()) ? '' : String(r.service_id || ''),
           authorName: String(r.author_name || ''),
           location: String(r.location || ''),
           rating: Number(r.rating || 5),
@@ -511,6 +567,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             (payload) => {
               if (payload.eventType === 'INSERT') {
                 const s = payload.new as Record<string, unknown>;
+                const sId = String(s.id || '').toLowerCase();
+                if (DEMO_SERVICE_IDS.has(sId)) return;
                 const mapped: TourismService = {
                   id: String(s.id),
                   title: String(s.title || ''),
@@ -532,6 +590,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 });
               } else if (payload.eventType === 'UPDATE') {
                 const s = payload.new as Record<string, unknown>;
+                const sId = String(s.id || '').toLowerCase();
+                if (DEMO_SERVICE_IDS.has(sId)) return;
                 const mapped: TourismService = {
                   id: String(s.id),
                   title: String(s.title || ''),

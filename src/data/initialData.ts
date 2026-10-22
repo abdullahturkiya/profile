@@ -73,139 +73,12 @@ export const INITIAL_STANDARDS: HospitalityStandard[] = [
   },
 ];
 
-export const INITIAL_SERVICES: TourismService[] = [
-  {
-    id: 'bosphorus-yacht',
-    title: 'رحلة ويخت ملكي خاص في البوسفور',
-    englishTitle: 'Bosphorus Royal Private Yacht',
-    description: 'إبحار خاص وفاخر في مضيق البوسفور بين قارتي آسيا وأوروبا، مع طاقم كونسيرج متكامل، شيف تركي محترف، وإطلالات بانورامية على قصر سيراجان وقلعة روملي حصار.',
-    price: 850,
-    currency: 'USD',
-    badge: 'تجربة ملكية VIP',
-    imageUrl: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=1200&q=80',
-    destination: 'إسطنبول',
-    features: [
-      'يخت فاره بطول 75 قدماً مع غرف استراحة خاصة',
-      'عشاء بحري ملكي بإشراف شيف تركي خاص',
-      'خدمة استقبال وتوديع بسيارة مرسيدس مايباخ VIP',
-      'تصوير فوتوغرافي وجوي (درون) عند الغروب'
-    ],
-    createdAt: '2026-01-10T10:00:00Z',
-  },
-  {
-    id: 'cappadocia-balloon',
-    title: 'تجربة مناطيد كابادوكيا الملكية',
-    englishTitle: 'Cappadocia Royal Balloon & Cave Suite',
-    description: 'رحلة منطاد هوائي VIP خاصة بدون أي زحام مع شروق الشمس فوق وادي العشاق ومداخن الجنيات، تليها إقامة أسطورية في أرقى أجنحة الكهوف الفندقية الفاخرة مع مسبح كهفي دافئ خاص.',
-    price: 650,
-    currency: 'USD',
-    badge: 'الأكثر طلباً',
-    imageUrl: 'https://images.unsplash.com/photo-1609137144820-21394f711200?auto=format&fit=crop&w=1200&q=80',
-    destination: 'كابادوكيا',
-    features: [
-      'منطاد هوائي خاص مع كابتن طيران معتمد دولياً',
-      'إفطار شامبانيا فاخر وسط الطبيعة الصخرية الساحرة',
-      'إقامة في أجنحة كهفية تاريخية مصنفة 5 نجوم',
-      'جولة بسيارة كلاسيكية مكشوفة لوادي الرهبان'
-    ],
-    createdAt: '2026-01-12T11:00:00Z',
-  },
-  {
-    id: 'trabzon-villa',
-    title: 'فلل وأكواخ الشمال التركي وطرابزون',
-    englishTitle: 'Trabzon Luxury Alpine Villa & Private Maybach',
-    description: 'إقامة حصرية في أكواخ خشبية فارهة بين سحاب مرتفعات آيدر وبحيرة أوزنجول وريزا، مع أحدث سيارات مرسيدس مايباخ وسبرينتر VIP وسائق كونسيرج خاص يتحدث العربية بطلاقة طوال الرحلة.',
-    price: 480,
-    currency: 'USD',
-    badge: 'طبيعة وخصوصية مطلقة',
-    imageUrl: 'https://images.unsplash.com/photo-1527668752968-14dc70a27c95?auto=format&fit=crop&w=1200&q=80',
-    destination: 'طرابزون والشمال التركي',
-    features: [
-      'سيارة مرسيدس مايباخ أو سبرينتر VIP مع شاشات وواي فاي وثلاجة',
-      'سائق ومرشد كونسيرج خاص مرافق 24/7',
-      'أكواخ فندقية مع جاكوزي وإطلالة بانورامية على الشلالات',
-      'خصوصية تامة 100% مناسبة للعائلات الخليجية والعربية'
-    ],
-    createdAt: '2026-01-15T12:00:00Z',
-  },
-  {
-    id: 'antalya-resort',
-    title: 'منتجع وفلل أنطاليا الشاطئية الفاخرة',
-    englishTitle: 'Antalya Beachfront Private Villa & Butler',
-    description: 'استجمام استثنائي على شواطئ الريفييرا التركية الفيروزية في فلل شاطئية معزولة مع مسبح خاص وخدمات خادم شخصي (Private Butler)، ورحلات يخت يومية للجزر والخلجان البحرية المخفية.',
-    price: 950,
-    currency: 'USD',
-    badge: 'استجمام ساحلي 5 نجوم',
-    imageUrl: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80',
-    destination: 'أنطاليا وبودروم',
-    features: [
-      'فيلا شاطئية مع مسبح دافئ وحديقة خاصة على البحر مباشرة',
-      'خادم شخصي (Private Butler) وطاهٍ خاص للوجبات اليومية',
-      'رحلة يخت خاصة يومية لخلجان أولودينيز وكيكوفا الغارقة',
-      'استقبال Fast Track خاص من باب الطائرة بمطار أنطاليا'
-    ],
-    createdAt: '2026-01-18T14:00:00Z',
-  },
-  {
-    id: 'istanbul-helicopter',
-    title: 'جولة هليكوبتر VIP خاصة فوق إسطنبول والبوسفور',
-    englishTitle: 'Istanbul VIP Private Helicopter Sightseeing',
-    description: 'تحليق جوي حصري بطائرة هليكوبتر VIP فوق معالم إسطنبول التاريخية ومضيق البوسفور، الجزر الملكية، وقصور السلاطين مع استقبال وتوصيل بسيارة مايباخ خاصة.',
-    price: 1200,
-    currency: 'USD',
-    badge: 'تجربة جوية حصرية',
-    imageUrl: 'https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=1200&q=80',
-    destination: 'إسطنبول',
-    features: [
-      'طائرة هليكوبتر حديثة ومجهزة مع كابتن طيران خاص',
-      'تصوير فوتوغرافي وجوي 4K بجودة سينمائية طوال الرحلة',
-      'خدمة استقبال كونسيرج خاصة عند مهبط الطائرات',
-      'ضيافة ملكية خاصة مع إطلالات بانورامية لا تُنسى'
-    ],
-    createdAt: '2026-01-20T10:00:00Z',
-  },
-  {
-    id: 'bodrum-gulet',
-    title: 'رحلة يخت خشبي ملكي (غوليت) في بودروم وتشيشمي',
-    englishTitle: 'Bodrum & Cesme Luxury Private Gulet Cruise',
-    description: 'إبحار خاص لعدة أيام على متن يخت خشبي تركي تقليدي فاخر (Gulet) مجهز بأجنحة فندقية 5 نجوم، مع طاقم بحري متكامل وشيف خاص لاستكشاف أروع خلجان بحر إيجة.',
-    price: 1450,
-    currency: 'USD',
-    badge: 'فخامة بحر إيجة',
-    imageUrl: 'https://images.unsplash.com/photo-1569263979104-865ab7cd8d17?auto=format&fit=crop&w=1200&q=80',
-    destination: 'بودروم وبحر إيجة',
-    features: [
-      'يخت غوليت بطول 85 قدماً مع 4 أجنحة ملكية خاصة',
-      'طاقم خدمة بحري 4 أفراد وشيف تركي متخصص بالمأكولات البحرية',
-      'ألعاب ورياضات مائية (جت سكي، سي بوب، ومعدات غوص)',
-      'مرسى خاص وخدمات كونسيرج في مارينا ياليكافاك بودروم'
-    ],
-    createdAt: '2026-01-22T12:00:00Z',
-  },
-  {
-    id: 'maybach-chauffeur',
-    title: 'أسطول سيارات مرسيدس مايباخ VIP مع كونسيرج خاص',
-    englishTitle: 'Mercedes Maybach VIP Chauffeur & Personal Concierge',
-    description: 'تنقلات خاصة ومترفة على مدار الساعة بأسطول مرسيدس مايباخ وسبرينتر VIP الحديثة، مع سائق كونسيرج خاص يتحدث العربية وخبير بأفخم المطاعم ومراكز التسوق الحصرية.',
-    price: 350,
-    currency: 'USD',
-    badge: 'تنقلات ملوكية 24/7',
-    imageUrl: 'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=1200&q=80',
-    destination: 'إسطنبول وجميع المدن',
-    features: [
-      'سيارة مرسيدس مايباخ حديثة مجهزة بمقاعد مساج وشاشات ترفيه',
-      'سائق كونسيرج مرخص رسمياً ويجيد العربية بطلاقة',
-      'إنترنت سريع، ثلاجة مشروبات وضيافة تركية فاخرة',
-      'استقبال وتوديع Fast Track خاص من بوابة الطائرة'
-    ],
-    createdAt: '2026-01-25T15:00:00Z',
-  },
-];
+export const INITIAL_SERVICES: TourismService[] = [];
 
 export const INITIAL_REVIEWS: Review[] = [
   {
     id: 'rev-1',
-    serviceId: 'bosphorus-yacht',
+    serviceId: '',
     authorName: 'سلطان القحطاني',
     location: 'الرياض، المملكة العربية السعودية',
     rating: 5,
@@ -215,7 +88,7 @@ export const INITIAL_REVIEWS: Review[] = [
   },
   {
     id: 'rev-2',
-    serviceId: 'cappadocia-balloon',
+    serviceId: '',
     authorName: 'د. فيصل الشمري',
     location: 'الكويت',
     rating: 5,
@@ -225,7 +98,7 @@ export const INITIAL_REVIEWS: Review[] = [
   },
   {
     id: 'rev-3',
-    serviceId: 'trabzon-villa',
+    serviceId: '',
     authorName: 'عائلة آل مكتوم',
     location: 'دبي، الإمارات العربية المتحدة',
     rating: 5,
@@ -235,7 +108,7 @@ export const INITIAL_REVIEWS: Review[] = [
   },
   {
     id: 'rev-4',
-    serviceId: 'antalya-resort',
+    serviceId: '',
     authorName: 'المهندس عبدالله المنصوري',
     location: 'الدوحة، قطر',
     rating: 5,
@@ -245,7 +118,7 @@ export const INITIAL_REVIEWS: Review[] = [
   },
   {
     id: 'rev-pending-1',
-    serviceId: 'bosphorus-yacht',
+    serviceId: '',
     authorName: 'خالد السبيعي',
     location: 'جدة، السعودية',
     rating: 5,
@@ -255,7 +128,7 @@ export const INITIAL_REVIEWS: Review[] = [
   },
   {
     id: 'rev-pending-2',
-    serviceId: 'trabzon-villa',
+    serviceId: '',
     authorName: 'فاطمة الكعبي',
     location: 'أبوظبي، الإمارات',
     rating: 4,
@@ -265,7 +138,7 @@ export const INITIAL_REVIEWS: Review[] = [
   },
   {
     id: 'rev-pending-3',
-    serviceId: 'cappadocia-balloon',
+    serviceId: '',
     authorName: 'محمد البلوشي',
     location: 'مسقط، عُمان',
     rating: 5,
