@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { TourismService, Review, SocialLink, AdminUser, SiteSettings, HospitalityStandard, ThemeMode } from '../types';
 import { INITIAL_SERVICES, INITIAL_REVIEWS, INITIAL_SOCIAL_LINKS, INITIAL_SITE_SETTINGS, INITIAL_STANDARDS } from '../data/initialData';
@@ -130,8 +130,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setCurrentRoute(route);
   };
 
-  // Toast notifications state
+  // Toast notifications state with deduplication protection
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
+  const lastToastRef = useRef<{ message: string; timestamp: number } | null>(null);
 
   const removeToast = (id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
@@ -142,7 +143,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     type: 'success' | 'error' | 'info' | 'loading' = 'success',
     duration = 3500
   ) => {
-    const id = 'toast-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6);
+    // Prevent duplicate rapid-fire toasts with the exact same text
+    const now = Date.now();
+    if (
+      lastToastRef.current &&
+      lastToastRef.current.message === message &&
+      now - lastToastRef.current.timestamp < 1500
+    ) {
+      return;
+    }
+    lastToastRef.current = { message, timestamp: now };
+
+    const id = 'toast-' + now + '-' + Math.random().toString(36).substring(2, 6);
     const newToast: ToastMessage = { id, message, type, duration };
     setToasts((prev) => [...prev.slice(-3), newToast]);
 
@@ -174,16 +186,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
 
   const toggleTheme = () => {
-    setTheme((prev) => {
-      const next = prev === 'dark' ? 'light' : 'dark';
-      safeStorage.setItem('ELITE_TURKEY_THEME', next);
-      showToast(
-        next === 'light' ? 'تم تفعيل الوضع النهاري الملكي' : 'تم تفعيل الوضع الليلي الملكي',
-        'info',
-        2500
-      );
-      return next;
-    });
+    const nextTheme: ThemeMode = theme === 'dark' ? 'light' : 'dark';
+    safeStorage.setItem('ELITE_TURKEY_THEME', nextTheme);
+    setTheme(nextTheme);
+    showToast(
+      nextTheme === 'light' ? 'تم تفعيل الوضع النهاري الملكي' : 'تم تفعيل الوضع الليلي الملكي',
+      'info',
+      2500
+    );
   };
 
   useEffect(() => {
